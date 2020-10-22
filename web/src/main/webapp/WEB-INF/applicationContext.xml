@@ -7,6 +7,6 @@
     <context:property-placeholder location="/WEB-INF/conf/application.properties"/>
 
     <import resource="classpath:context/applicationContext-core.xml"/>
-    <import resource="classpath:context/applicationContext-demoda.xml"/>
+    <import resource="classpath:context/applicationContext-demodata.xml"/>
 
 </beans>

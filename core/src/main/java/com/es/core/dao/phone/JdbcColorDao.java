@@ -1,4 +1,7 @@
-package com.es.core.model.phone;
+package com.es.core.dao.phone;
+
+import com.es.core.dao.phone.helper.JdbcHelper;
+import com.es.core.model.phone.Color;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -8,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Collections;
-import java.util.Optional;
 
 @Component
 public class JdbcColorDao implements ColorDao {
@@ -25,16 +27,6 @@ public class JdbcColorDao implements ColorDao {
 
     @Override
     public void save(Color color) {
-        Optional<Long> idOfColorWithSuchUniqueParams = jdbcHelper.getIdOfExistedEntityByUniqueParams("colors",
-                "id", Collections.singletonMap("code", color.getCode()));
-        if (idOfColorWithSuchUniqueParams.isPresent()) {
-            if (idOfColorWithSuchUniqueParams.get().equals(color.getId())) {
-                return;
-            } else {
-                throw new ColorUniqueConstraintException();
-            }
-        }
-
         if (color.getId() == null) {
             Number newColorId = jdbcHelper.insertAndReturnGeneratedKey("colors",
                     new BeanPropertySqlParameterSource(color), "id");
@@ -47,5 +39,4 @@ public class JdbcColorDao implements ColorDao {
             jdbcHelper.insert("colors", new BeanPropertySqlParameterSource(color));
         }
     }
-
 }
