@@ -20,7 +20,7 @@ import javax.servlet.ServletContext;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:context/applicationContext-test.xml")
 @WebAppConfiguration
-public class ProductListPageControllerTest {
+public class ProductListPageControllerIntTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;

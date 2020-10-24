@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration("classpath:context/applicationContext-core-test.xml")
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
-public class JdbcPhoneDaoTest {
+public class JdbcPhoneDaoIntTest {
     @Resource
     private JdbcTemplate jdbcTemplate;
     @Autowired

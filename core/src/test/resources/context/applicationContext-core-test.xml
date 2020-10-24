@@ -10,7 +10,7 @@
     <context:property-placeholder location="classpath:conf/application.properties"/>
 
     <jdbc:initialize-database enabled="true" data-source="dataSource">
-        <jdbc:script location="classpath:db/demodata-phones-test.sql" />
+        <jdbc:script location="classpath:db/demodata-phones-test.sql"/>
     </jdbc:initialize-database>
 
 </beans>

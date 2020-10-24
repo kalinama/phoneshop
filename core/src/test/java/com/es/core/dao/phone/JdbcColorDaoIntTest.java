@@ -20,7 +20,7 @@ import static org.junit.Assert.assertSame;
 @ContextConfiguration("classpath:context/applicationContext-core-test.xml")
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
-public class JdbcColorDaoTest {
+public class JdbcColorDaoIntTest {
     @Resource
     private JdbcTemplate jdbcTemplate;
     @Autowired
