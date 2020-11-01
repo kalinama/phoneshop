@@ -3,15 +3,12 @@ package com.es.core.cart.service;
 import com.es.core.cart.entity.Cart;
 import com.es.core.cart.entity.CartItem;
 import com.es.core.cart.service.exception.PhoneNotFoundException;
-import com.es.core.order.service.exception.OutOfStockException;
 import com.es.core.phone.dao.PhoneDao;
-import com.es.core.phone.dao.StockDao;
 import com.es.core.phone.entity.Phone;
-import com.es.core.phone.entity.Stock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
@@ -21,16 +18,24 @@ public class HttpSessionCartService implements CartService {
     @Resource
     private PhoneDao phoneDao;
 
-    @Resource
-    private Cart cart;
+    private static final String CART_SESSION_ATTRIBUTE = HttpSessionCartService.class.getName() + ".cart";
+
 
     @Override
-    public Cart getCart() {
-        return cart;
+    public Cart getCart(HttpSession httpSession) {
+        final Object lock = httpSession.getId().intern();
+        synchronized (lock) {
+            Cart cart = (Cart) httpSession.getAttribute(CART_SESSION_ATTRIBUTE);
+            if (cart == null) {
+                cart = new Cart();
+                httpSession.setAttribute(CART_SESSION_ATTRIBUTE, cart);
+            }
+            return cart;
+        }
     }
 
     @Override
-    public void addPhone(Long phoneId, Long quantity) {
+    public void addPhone(Cart cart, Long phoneId, Long quantity) {
         synchronized (cart) {
             if (quantity <= 0) {
                 throw new IllegalArgumentException();

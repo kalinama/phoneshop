@@ -11,6 +11,10 @@ import java.text.ParseException;
 @Component
 public class InputForAddToCartValidator implements Validator {
 
+    public static final String FRACTIONAL_NUMBER = "Can't enter fractional number";
+    public static final String NOT_NUMBER = "Not a number";
+    public static final String NOT_POSITIVE_NUMBER = "Can't add 0 or negative number of items";
+
     @Override
     public boolean supports(Class<?> aClass) {
         return InputForAddToCart.class.equals(aClass);
@@ -26,16 +30,16 @@ public class InputForAddToCartValidator implements Validator {
             quantityFractional = numberFormat.parse(inputForAddToCart.getQuantity()).doubleValue();
             quantity = (int) quantityFractional;
         } catch (ParseException e) {
-            errors.reject("quantity","Not a number");
+            errors.reject("quantity", NOT_NUMBER);
             return;
         }
 
-        if (quantityFractional != quantity){
-            errors.reject("quantity","Can't enter fractional number");
+        if (quantityFractional != quantity) {
+            errors.reject("quantity", FRACTIONAL_NUMBER);
         }
 
         if (quantity <= 0) {
-            errors.reject("quantity","Can't add 0 or negative number of items");
+            errors.reject("quantity", NOT_POSITIVE_NUMBER);
         }
     }
 }

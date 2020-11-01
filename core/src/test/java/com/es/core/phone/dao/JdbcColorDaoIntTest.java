@@ -24,7 +24,7 @@ import static org.junit.Assert.assertSame;
 public class JdbcColorDaoIntTest {
     @Resource
     private JdbcTemplate jdbcTemplate;
-    @Autowired
+    @Resource(name = "jdbcColorDao")
     private ColorDao colorDao;
 
     private final static String tableName = "colors";

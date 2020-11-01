@@ -3,8 +3,9 @@ package com.es.core.phone.dao;
 import com.es.core.phone.dao.exception.PrimaryKeyUniquenessException;
 import com.es.core.phone.entity.Color;
 import com.es.core.phone.entity.Phone;
-import com.es.core.phone.dao.JdbcPhoneDao;
-import com.es.core.phone.dao.PhoneDao;
+import com.es.core.phone.entity.Stock;
+import com.es.core.phone.enums.SortOrder;
+import com.es.core.phone.enums.SortParameter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +26,8 @@ import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -38,14 +41,16 @@ import static org.mockito.Mockito.when;
 public class JdbcPhoneDaoIntTest {
     @Resource
     private JdbcTemplate jdbcTemplate;
-    @Autowired
+    @Resource
     private PhoneDao jdbcPhoneDao;
     private List<Phone> testPhones;
+    private List<Stock> testPhoneStocks;
     private Phone testNewPhone;
 
     private final static String tableName = "phones";
 
     private final static String QUERY_GET_PHONE_BY_ID = "SELECT * FROM " + tableName + " WHERE id = ?";
+    private final static String QUERY_GET_PHONE_STOCKS = "SELECT stocks.stock, stocks.reserved FROM stocks WHERE phoneId = ?";
     private final static String QUERY_GET_PHONE_COLORS = "SELECT colors.id, colors.code FROM " +
                                                             "(SELECT * FROM phone2color WHERE phoneId = ?) " +
                                                         "AS phone2colorExcerpt INNER JOIN colors " +
@@ -54,12 +59,17 @@ public class JdbcPhoneDaoIntTest {
     public void setUp() {
         List<Long> ids = Arrays.asList(1000L, 1002L, 1057L, 1092L, 1132L, 1192L, 1577L, 1777L, 1864L, 1914L, 8763L);
         testPhones = new ArrayList<>();
+        testPhoneStocks = new ArrayList<>();
         for (long id : ids) {
             Phone testPhone = jdbcTemplate.queryForObject(QUERY_GET_PHONE_BY_ID, new Object[]{id},
                     new BeanPropertyRowMapper<>(Phone.class));
             List<Color> testPhoneColors = jdbcTemplate.query(QUERY_GET_PHONE_COLORS, new Object[]{id},
                     new BeanPropertyRowMapper<>(Color.class));
             testPhone.setColors(new HashSet<>(testPhoneColors));
+            Stock stock = jdbcTemplate.queryForObject(QUERY_GET_PHONE_STOCKS, new Object[]{id},
+                    new BeanPropertyRowMapper<>(Stock.class));
+            stock.setPhone(testPhone);
+            testPhoneStocks.add(stock);
             testPhones.add(testPhone);
         }
         Set<Color> newPhoneColors = new HashSet<>(Arrays.asList(new Color(1000L, "Black"), new Color(1001L, "White"), new Color("Pink")));
@@ -96,20 +106,77 @@ public class JdbcPhoneDaoIntTest {
         assertEquals(expectedPhone, actualPhone);
     }
 
-   /* @Test
-    public void findAllPhonesWithColorsTest() {
+    private Stream<Phone> getFilterPhones() {
+        return testPhones.stream()
+                .filter(phone -> !phone.getColors().isEmpty())
+                .filter(phone -> testPhoneStocks.stream()
+                        .anyMatch(stock -> phone.equals(stock.getPhone()) && stock.getStock()>0))
+                .filter(phone -> !(phone.getPrice() == null) && (phone.getPrice().compareTo(new BigDecimal(0)) > 0));
+    }
+
+ @Test
+    public void findAllPhonesWithColorsWithStockWithPriceWithoutQueryTest() {
         int offset = 1;
         int limit = 3;
-        List<Phone> actualPhones = jdbcPhoneDao.findAll(offset, limit);
-        List<Phone> expectedPhones = testPhones.stream()
-                .filter(phone -> !phone.getColors().isEmpty())
+        List<Phone> actualPhones = jdbcPhoneDao.findAll(offset, limit, null, SortParameter.brand, SortOrder.asc);
+        List<Phone> expectedPhones = getFilterPhones()
                 .skip(offset)
                 .limit(limit)
                 .collect(Collectors.toList());
         assertEquals(expectedPhones, actualPhones);
     }
 
-    */
+    @Test
+    public void findAllPhonesWithColorsWithStockWithPriceWithQueryTest() {
+        int offset = 0;
+        int limit = 10;
+        String query = "a";
+        List<Phone> actualPhones = jdbcPhoneDao.findAll(offset, limit, query, SortParameter.brand, SortOrder.asc);
+        List<Phone> expectedPhones = getFilterPhones()
+                .filter(phone -> phone.getBrand().toLowerCase().contains(query.toLowerCase())
+                        || phone.getModel().toLowerCase().contains(query.toLowerCase()))
+                .skip(offset)
+                .limit(limit)
+                .collect(Collectors.toList());
+        assertEquals(expectedPhones, actualPhones);
+    }
+
+    @Test
+    public void findAllPhonesSortedByPriceDescTest() {
+        int offset = 1;
+        int limit = 3;
+        List<Phone> actualPhones = jdbcPhoneDao.findAll(offset, limit, null, SortParameter.price, SortOrder.desc);
+        List<Phone> expectedPhones = getFilterPhones()
+                .sorted(Comparator.comparing(Phone::getPrice).reversed())
+                .skip(offset)
+                .limit(limit)
+                .collect(Collectors.toList());
+        assertEquals(expectedPhones, actualPhones);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void findAllPhonesThrowException() {
+        int offset = 1;
+        int limit = 3;
+        jdbcPhoneDao.findAll(offset, limit, null, null, SortOrder.desc);
+    }
+
+    @Test
+    public void getQuantityWithQuery() {
+        String query = "t";
+        long actualPhoneQuantity = jdbcPhoneDao.getQuantity(query);
+        long expectedPhoneQuantity = getFilterPhones()
+                .filter(phone -> phone.getBrand().toLowerCase().contains(query.toLowerCase())
+                        || phone.getModel().toLowerCase().contains(query.toLowerCase())).count();
+        assertEquals(expectedPhoneQuantity, actualPhoneQuantity);
+    }
+
+    @Test
+    public void getQuantityWithoutQuery() {
+        long actualPhoneQuantity = jdbcPhoneDao.getQuantity(null);
+        long expectedPhoneQuantity = getFilterPhones().count();
+        assertEquals(expectedPhoneQuantity, actualPhoneQuantity);
+    }
 
     @Test
     public void saveNewPhoneWithoutIdTestToCheckAddingEntityToDB() {

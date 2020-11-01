@@ -3,7 +3,6 @@ package com.es.core.phone.dao;
 import com.es.core.phone.dao.exception.PrimaryKeyUniquenessException;
 import com.es.core.phone.entity.Phone;
 import com.es.core.phone.entity.Stock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;

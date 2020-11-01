@@ -4,13 +4,14 @@ import com.es.core.cart.entity.Cart;
 import com.es.core.order.service.exception.OutOfStockException;
 import com.es.core.phone.entity.Phone;
 
+import javax.servlet.http.HttpSession;
 import java.util.Map;
 
 public interface CartService {
 
-    Cart getCart();
+    Cart getCart(HttpSession httpSession);
 
-    void addPhone(Long phoneId, Long quantity);
+    void addPhone(Cart cart, Long phoneId, Long quantity);
 
     /**
      * @param items

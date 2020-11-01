@@ -9,10 +9,10 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
@@ -24,41 +24,40 @@ public class AjaxCartController {
     @Resource
     private CartService httpCartService;
 
-    @Resource
+    @Resource(name = "inputForAddToCartValidator")
     private Validator quantityValidator;
 
-    @InitBinder("inputForAddToCart")
-    protected void initBinder(WebDataBinder binder) {
-        binder.setValidator(quantityValidator);
-    }
-
+    private final static String MESSAGE_SUCCESS = "Successful added to cart";
 
     @GetMapping
-    public @ResponseBody MiniCart getCart() {
-        Cart cart = httpCartService.getCart();
+    public @ResponseBody MiniCart getCart(HttpSession httpSession) {
+        Cart cart = httpCartService.getCart(httpSession);
         return new MiniCart(cart.getTotalQuantity(), cart.getTotalCost());
     }
 
     @PostMapping
     public @ResponseBody AddToCartResponse addPhone(@RequestBody InputForAddToCart inputForAddToCart,
-                               BindingResult bindingResult, Locale locale) throws ParseException {
-        Cart cart = httpCartService.getCart();
+                               BindingResult bindingResult, Locale locale, HttpSession httpSession) throws ParseException {
         inputForAddToCart.setLocale(locale);
         quantityValidator.validate(inputForAddToCart, bindingResult);
 
-        String message;
         if (bindingResult.hasErrors()) {
-           message = bindingResult.getAllErrors().stream()
-                   .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("&&"));
+            String message = bindingResult.getAllErrors().stream()
+                   .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .collect(Collectors.joining(" && "));
             return new AddToCartResponse(message, false);
         }
-        message = "Successful added to cart";
-        httpCartService.addPhone(inputForAddToCart.getPhoneId(),
-                NumberFormat.getInstance(locale).parse(inputForAddToCart.getQuantity()).longValue());
+
+        Cart cart = httpCartService.getCart(httpSession);
+        httpCartService.addPhone(cart, inputForAddToCart.getPhoneId(), parseQuantity(inputForAddToCart, locale));
         MiniCart miniCart = new MiniCart(cart.getTotalQuantity(), cart.getTotalCost());
-        return new AddToCartResponse(miniCart, message, true);
+        return new AddToCartResponse(miniCart, MESSAGE_SUCCESS, true);
     }
 
-
+    private Long parseQuantity(InputForAddToCart inputForAddToCart, Locale locale) throws ParseException {
+        return NumberFormat.getInstance(locale)
+                .parse(inputForAddToCart.getQuantity())
+                .longValue();
+    }
 
 }
