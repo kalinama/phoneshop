@@ -1,6 +1,6 @@
 package com.es.phoneshop.web.controller.pages;
 
-import com.es.core.service.cart.CartService;
+import com.es.core.cart.service.CartService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,7 +15,7 @@ public class CartPageController {
 
     @RequestMapping(method = RequestMethod.GET)
     public void getCart() {
-        cartService.getCart();
+        //cartService.getCart();
     }
 
     @RequestMapping(method = RequestMethod.PUT)
