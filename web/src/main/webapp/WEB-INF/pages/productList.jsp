@@ -47,32 +47,33 @@
     </thead>
     <tbody>
       <c:forEach var="phone" items="${phones}">
-        <tr>
-          <td>
-            <img width="150" src="https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/${phone.imageUrl}">
-          </td>
-          <td>${phone.brand}</td>
-          <td>${phone.model}</td>
-          <td>
-            <c:forEach var="color" items="${phone.colors}" varStatus="loopStatus">
-              ${color.code}
-              <c:if test="${!loopStatus.last}">,</c:if>
-            </c:forEach>
-          </td>
-          <td>${phone.displaySizeInches}"</td>
-          <td>
-            <fmt:formatNumber value="${phone.price}" type="currency" currencySymbol="$"/>
-          </td>
-          <td>
-            <input type="text" class="form-control" name="quantity" id="quantityAddToCart-${phone.id}" value="1"/>
-            <div style="" id="message-${phone.id}"></div>
-          </td>
-          <td>
-            <button class="btn btn-dark" onclick="add(${phone.id});" id="test">
-              Add
-            </button>
-          </td>
-        </tr>
+          <c:set var="productDetailsLink" value="${pageContext.request.contextPath}/productDetails/${phone.id}"/>
+          <tr onmouseover="changeColor(this, true);" onmouseout="changeColor(this, false);">
+              <td onclick="redirect('${productDetailsLink}')">
+                  <img width="150" src="https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/${phone.imageUrl}">
+              </td>
+              <td onclick="redirect('${productDetailsLink}')">${phone.brand}</td>
+              <td onclick="redirect('${productDetailsLink}')">
+                  <a href="${productDetailsLink}" style="color: black">${phone.model}</a>
+              </td>
+              <td onclick="redirect('${productDetailsLink}')">
+                  <c:forEach var="color" items="${phone.colors}" varStatus="loopStatus">
+                      ${color.code}
+                      <c:if test="${!loopStatus.last}">,</c:if>
+                  </c:forEach>
+              </td>
+              <td onclick="redirect('${productDetailsLink}')">${phone.displaySizeInches}"</td>
+              <td onclick="redirect('${productDetailsLink}')">
+                  <fmt:formatNumber value="${phone.price}" type="currency" currencySymbol="$"/>
+              </td>
+              <td>
+                  <input type="text" class="form-control" id="quantityAddToCart-${phone.id}" value="1"/>
+                  <div id="message-${phone.id}"></div>
+              </td>
+              <td>
+                  <button class="btn btn-dark" onclick="add(${phone.id});">Add</button>
+              </td>
+          </tr>
       </c:forEach>
     </tbody>
   </table>

@@ -2,10 +2,10 @@ package com.es.phoneshop.web.controller;
 
 import com.es.core.cart.entity.Cart;
 import com.es.core.cart.service.CartService;
+import com.es.phoneshop.web.controller.helper.BindingResultHelper;
 import com.es.phoneshop.web.entity.AddToCartResponse;
-import com.es.phoneshop.web.entity.InputForAddToCart;
+import com.es.phoneshop.web.entity.InputQuantityUnit;
 import com.es.phoneshop.web.entity.MiniCart;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
@@ -16,7 +16,6 @@ import javax.servlet.http.HttpSession;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping(value = "/ajaxCart")
@@ -24,8 +23,11 @@ public class AjaxCartController {
     @Resource
     private CartService httpCartService;
 
-    @Resource(name = "inputForAddToCartValidator")
+    @Resource(name = "inputQuantityValidator")
     private Validator quantityValidator;
+
+    @Resource(name = "defaultBindingResultHelper")
+    private BindingResultHelper bindingResultHelper;
 
     private final static String MESSAGE_SUCCESS = "Successful added to cart";
 
@@ -36,27 +38,26 @@ public class AjaxCartController {
     }
 
     @PostMapping
-    public @ResponseBody AddToCartResponse addPhone(@RequestBody InputForAddToCart inputForAddToCart,
-                               BindingResult bindingResult, Locale locale, HttpSession httpSession) throws ParseException {
-        inputForAddToCart.setLocale(locale);
-        quantityValidator.validate(inputForAddToCart, bindingResult);
+    public @ResponseBody AddToCartResponse addPhone(@RequestParam(name = "phoneId") Long phoneId,
+                                                    @RequestParam(name = "quantity") String quantity,
+                                                    Locale locale, HttpSession httpSession) throws ParseException {
+       InputQuantityUnit input = new InputQuantityUnit(quantity, locale);
+       BindingResult bindingResult = bindingResultHelper.getBindingResult(input, quantityValidator);
 
-        if (bindingResult.hasErrors()) {
-            String message = bindingResult.getAllErrors().stream()
-                   .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .collect(Collectors.joining(" && "));
+       if (bindingResult.hasErrors()) {
+            String message = bindingResultHelper.getErrorMessage(bindingResult);
             return new AddToCartResponse(message, false);
         }
 
         Cart cart = httpCartService.getCart(httpSession);
-        httpCartService.addPhone(cart, inputForAddToCart.getPhoneId(), parseQuantity(inputForAddToCart, locale));
+        httpCartService.addPhone(cart, phoneId, parseQuantity(input));
         MiniCart miniCart = new MiniCart(cart.getTotalQuantity(), cart.getTotalCost());
         return new AddToCartResponse(miniCart, MESSAGE_SUCCESS, true);
     }
 
-    private Long parseQuantity(InputForAddToCart inputForAddToCart, Locale locale) throws ParseException {
-        return NumberFormat.getInstance(locale)
-                .parse(inputForAddToCart.getQuantity())
+    private Long parseQuantity(InputQuantityUnit quantityUnit) throws ParseException {
+        return NumberFormat.getInstance(quantityUnit.getLocale())
+                .parse(quantityUnit.getQuantity())
                 .longValue();
     }
 

@@ -2,19 +2,17 @@ package com.es.phoneshop.web.entity;
 
 import java.util.Locale;
 
-public class InputForAddToCart {
+public class InputQuantityUnit {
 
-    private Long phoneId;
     private String quantity;
     private Locale locale;
 
-    public InputForAddToCart(Long phoneId, String quantity, Locale locale) {
-        this.phoneId = phoneId;
+    public InputQuantityUnit(String quantity, Locale locale) {
         this.quantity = quantity;
         this.locale = locale;
     }
 
-    public InputForAddToCart() {
+    public InputQuantityUnit() {
     }
 
     public String getQuantity() {
@@ -33,11 +31,4 @@ public class InputForAddToCart {
         this.locale = locale;
     }
 
-    public Long getPhoneId() {
-        return phoneId;
-    }
-
-    public void setPhoneId(Long phoneId) {
-        this.phoneId = phoneId;
-    }
 }

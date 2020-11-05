@@ -18,7 +18,7 @@ public interface CartService {
      * key: {@link Phone#id}
      * value: quantity
      */
-    void update(Map<Long, Long> items);
+    void update(Cart cart, Map<Long, Long> items);
 
-    void remove(Long phoneId);
+    void remove(Cart cart, Long phoneId);
 }

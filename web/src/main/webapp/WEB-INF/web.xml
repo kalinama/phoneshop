@@ -19,6 +19,31 @@
     <url-pattern>/</url-pattern>
   </servlet-mapping>
 
+  <filter>
+    <filter-name>hiddenHttpMethodFilter</filter-name>
+    <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>hiddenHttpMethodFilter</filter-name>
+    <servlet-name>dispatcher</servlet-name>
+  </filter-mapping>
+
+  <error-page>
+    <error-code>400</error-code>
+    <location>/WEB-INF/pages/errors/badRequestError.jsp</location>
+  </error-page>
+
+  <error-page>
+    <error-code>404</error-code>
+    <location>/WEB-INF/pages/errors/notFoundError.jsp</location>
+  </error-page>
+
+  <error-page>
+    <error-code>500</error-code>
+    <location>/WEB-INF/pages/errors/internalServerError.jsp</location>
+  </error-page>
+
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>

@@ -4,7 +4,6 @@ import com.es.core.cart.entity.Cart;
 import com.es.core.cart.entity.CartItem;
 import com.es.core.cart.service.exception.PhoneNotFoundException;
 import com.es.core.order.service.exception.OutOfStockException;
-import com.es.core.phone.dao.JdbcPhoneDao;
 import com.es.core.phone.dao.PhoneDao;
 import com.es.core.phone.entity.Phone;
 import org.junit.Before;

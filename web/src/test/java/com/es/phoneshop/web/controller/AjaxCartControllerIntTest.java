@@ -2,7 +2,7 @@ package com.es.phoneshop.web.controller;
 
 import com.es.core.cart.entity.Cart;
 import com.es.core.cart.service.CartService;
-import com.es.phoneshop.web.validator.InputForAddToCartValidator;
+import com.es.phoneshop.web.validator.InputQuantityValidator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,7 +63,7 @@ public class AjaxCartControllerIntTest {
 
     @Test
     public void addPhoneWithValidDataErrorTest() throws Exception {
-        Validator validator = new InputForAddToCartValidator();
+        Validator validator = new InputQuantityValidator();
         Field field = AjaxCartController.class.getDeclaredField("quantityValidator");
         field.setAccessible(true);
         field.set(ajaxCartController, validator);
