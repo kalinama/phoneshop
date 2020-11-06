@@ -1,6 +1,8 @@
-package com.es.core.phone.dao;
+package com.es.core.phone.dao.impl;
 
+import com.es.core.phone.dao.PhoneDao;
 import com.es.core.phone.dao.exception.PrimaryKeyUniquenessException;
+import com.es.core.phone.dao.impl.JdbcPhoneDao;
 import com.es.core.phone.entity.Color;
 import com.es.core.phone.entity.Phone;
 import com.es.core.phone.entity.Stock;
@@ -10,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;

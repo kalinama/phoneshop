@@ -27,7 +27,7 @@ public class InputQuantityUnitValidatorTest {
 
     @Test
     public void getNumberFromQuantityParamTestSuccess() {
-        InputQuantityUnit input = new InputQuantityUnit(1L, "2", locale);
+        InputQuantityUnit input = new InputQuantityUnit("2", locale);
 
         validator.validate(input, errors);
         assertFalse(errors.hasErrors());
@@ -35,7 +35,7 @@ public class InputQuantityUnitValidatorTest {
 
     @Test
     public void getNumberFromQuantityParamNotNumberError() {
-        InputQuantityUnit input = new InputQuantityUnit(1L, "hh", locale);
+        InputQuantityUnit input = new InputQuantityUnit("hh", locale);
 
         validator.validate(input, errors);
         verify(errors).reject("quantity", NOT_NUMBER);
@@ -43,7 +43,7 @@ public class InputQuantityUnitValidatorTest {
 
     @Test
     public void getNumberFromQuantityParamFractionalNumberError() {
-        InputQuantityUnit input = new InputQuantityUnit(1L, "1.9", locale);
+        InputQuantityUnit input = new InputQuantityUnit("1.9", locale);
 
         validator.validate(input, errors);
         verify(errors).reject("quantity", FRACTIONAL_NUMBER);
@@ -51,7 +51,7 @@ public class InputQuantityUnitValidatorTest {
 
     @Test
     public void getNumberFromQuantityParamNegativeNumberError() {
-        InputQuantityUnit input = new InputQuantityUnit(1L, "-1", locale);
+        InputQuantityUnit input = new InputQuantityUnit("-1", locale);
 
         validator.validate(input, errors);
         verify(errors).reject("quantity", NOT_POSITIVE_NUMBER);

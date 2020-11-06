@@ -1,5 +1,7 @@
-package com.es.core.phone.dao;
+package com.es.core.phone.dao.impl;
 
+import com.es.core.phone.dao.ColorDao;
+import com.es.core.phone.dao.PhoneDao;
 import com.es.core.phone.enums.SortOrder;
 import com.es.core.phone.enums.SortParameter;
 import com.es.core.phone.dao.exception.PrimaryKeyUniquenessException;
@@ -25,7 +27,7 @@ public class JdbcPhoneDao implements PhoneDao {
     @Resource
     private JdbcTemplate jdbcTemplate;
     @Resource
-    private  ColorDao jdbcColorDao;
+    private ColorDao jdbcColorDao;
     @Resource
     private  JdbcHelper defaultJdbcHelper;
 
