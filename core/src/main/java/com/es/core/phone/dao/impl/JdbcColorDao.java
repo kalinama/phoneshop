@@ -1,5 +1,6 @@
-package com.es.core.phone.dao;
+package com.es.core.phone.dao.impl;
 
+import com.es.core.phone.dao.ColorDao;
 import com.es.core.phone.dao.helper.JdbcHelper;
 import com.es.core.phone.entity.Color;
 

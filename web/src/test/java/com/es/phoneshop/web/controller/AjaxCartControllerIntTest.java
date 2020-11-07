@@ -2,7 +2,7 @@ package com.es.phoneshop.web.controller;
 
 import com.es.core.cart.entity.Cart;
 import com.es.core.cart.service.CartService;
-import com.es.phoneshop.web.validator.InputForAddToCartValidator;
+import com.es.phoneshop.web.controller.helper.BindingResultHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,11 +13,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.validation.Validator;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import javax.servlet.http.HttpSession;
-import java.lang.reflect.Field;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -28,7 +27,9 @@ public class AjaxCartControllerIntTest {
     @Mock
     private CartService cartService;
     @Mock
-    private Validator validator;
+    private BindingResultHelper bindingResultHelper;
+    @Mock
+    private BindingResult bindingResult;
     @InjectMocks
     private AjaxCartController ajaxCartController;
 
@@ -46,35 +47,33 @@ public class AjaxCartControllerIntTest {
 
     @Test
     public void addPhoneWithValidDataSuccessTest() throws Exception {
-        when(cartService.getCart(any(HttpSession.class))).thenReturn(new Cart());
         String phoneId = "1";
         String quantity = "2";
-        String content = "{\"phoneId\": \"" + phoneId + "\", \"quantity\": \"" + quantity + "\"}";
+
+        when(cartService.getCart(any(HttpSession.class))).thenReturn(new Cart());
+        when(bindingResultHelper.getBindingResult(any(), any())).thenReturn(bindingResult);
+        when(bindingResult.hasErrors()).thenReturn(false);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/ajaxCart")
-                .content(content)
-                .contentType(MediaType.APPLICATION_JSON))
+                .param("phoneId", phoneId)
+                .param("quantity", quantity))
                 .andExpect(status().isOk());
 
-        verify(validator).validate(any(), any());
         verify(cartService).getCart(any(HttpSession.class));
         verify(cartService).addPhone(any(), any(), any());
     }
 
     @Test
     public void addPhoneWithValidDataErrorTest() throws Exception {
-        Validator validator = new InputForAddToCartValidator();
-        Field field = AjaxCartController.class.getDeclaredField("quantityValidator");
-        field.setAccessible(true);
-        field.set(ajaxCartController, validator);
-
         String phoneId = "1";
         String quantity = "ll";
-        String content = "{\"phoneId\": \"" + phoneId + "\", \"quantity\": \"" + quantity + "\"}";
+
+        when(bindingResultHelper.getBindingResult(any(), any())).thenReturn(bindingResult);
+        when(bindingResult.hasErrors()).thenReturn(true);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/ajaxCart")
-                .content(content)
-                .contentType(MediaType.APPLICATION_JSON))
+                .param("phoneId", phoneId)
+                .param("quantity", quantity))
                 .andExpect(status().isOk());
 
         verify(cartService, never()).getCart(any(HttpSession.class));

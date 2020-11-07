@@ -1,7 +1,8 @@
-package com.es.core.cart.service;
+package com.es.core.cart.service.impl;
 
 import com.es.core.cart.entity.Cart;
 import com.es.core.cart.entity.CartItem;
+import com.es.core.cart.service.CartService;
 import com.es.core.cart.service.exception.PhoneNotFoundException;
 import com.es.core.phone.dao.PhoneDao;
 import com.es.core.phone.entity.Phone;
@@ -23,8 +24,7 @@ public class HttpSessionCartService implements CartService {
 
     @Override
     public Cart getCart(HttpSession httpSession) {
-        final Object lock = httpSession.getId().intern();
-        synchronized (lock) {
+        synchronized (httpSession) {
             Cart cart = (Cart) httpSession.getAttribute(CART_SESSION_ATTRIBUTE);
             if (cart == null) {
                 cart = new Cart();
@@ -75,12 +75,22 @@ public class HttpSessionCartService implements CartService {
     }
 
     @Override
-    public void update(Map<Long, Long> items) {
-        throw new UnsupportedOperationException("TODO");
+    public void update(Cart cart, Map<Long, Long> items) {
+        synchronized (cart) {
+            items.forEach((key, value) -> cart.getCartItems().stream()
+                    .filter(item -> item.getPhone().getId().equals(key))
+                    .findFirst()
+                    .get()
+                    .setQuantity(value));
+            recalculateCart(cart);
+        }
     }
 
     @Override
-    public void remove(Long phoneId) {
-        throw new UnsupportedOperationException("TODO");
+    public void remove(Cart cart, Long phoneId) {
+        synchronized (cart) {
+            cart.getCartItems().removeIf(item -> item.getPhone().getId().equals(phoneId));
+            recalculateCart(cart);
+        }
     }
 }

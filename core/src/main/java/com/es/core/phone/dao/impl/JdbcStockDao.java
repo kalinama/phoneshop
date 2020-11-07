@@ -1,5 +1,7 @@
-package com.es.core.phone.dao;
+package com.es.core.phone.dao.impl;
 
+import com.es.core.phone.dao.PhoneDao;
+import com.es.core.phone.dao.StockDao;
 import com.es.core.phone.dao.exception.PrimaryKeyUniquenessException;
 import com.es.core.phone.entity.Phone;
 import com.es.core.phone.entity.Stock;
@@ -12,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class JdbcStockDao implements StockDao{
+public class JdbcStockDao implements StockDao {
 
     @Resource
     private JdbcTemplate jdbcTemplate;

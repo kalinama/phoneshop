@@ -1,10 +1,9 @@
-package com.es.core.cart.service;
+package com.es.core.cart.service.impl;
 
 import com.es.core.cart.entity.Cart;
 import com.es.core.cart.entity.CartItem;
 import com.es.core.cart.service.exception.PhoneNotFoundException;
 import com.es.core.order.service.exception.OutOfStockException;
-import com.es.core.phone.dao.JdbcPhoneDao;
 import com.es.core.phone.dao.PhoneDao;
 import com.es.core.phone.entity.Phone;
 import org.junit.Before;
@@ -19,12 +18,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotSame;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -54,8 +51,7 @@ public class HttpSessionCartServiceTest {
         Phone testPhone = new Phone(1L, new BigDecimal(100));
         cart.getCartItems().add(new CartItem(testPhone, 1L));
 
-       when(httpSession.getId()).thenReturn(anyString());
-       when(httpSession.getAttribute(CART_SESSION_ATTRIBUTE_TEST)).thenReturn(cart);
+        when(httpSession.getAttribute(CART_SESSION_ATTRIBUTE_TEST)).thenReturn(cart);
     }
 
     @Test
@@ -69,7 +65,6 @@ public class HttpSessionCartServiceTest {
     @Test
     public void getCartForDifferentSessionsTest() {
         HttpSession otherSession = mock(HttpSession.class);
-        when(otherSession.getId()).thenReturn(anyString());
         when(otherSession.getAttribute(CART_SESSION_ATTRIBUTE_TEST)).thenReturn(null);
 
         Cart firstCart = cartService.getCart(httpSession);
@@ -82,13 +77,19 @@ public class HttpSessionCartServiceTest {
     public void addNewPhoneToCartTest() {
         Phone phone = new Phone(2L, new BigDecimal(150));
         Long quantity = 3L;
+
         when(phoneDao.get(anyLong())).thenReturn(Optional.of(phone));
         cartService.addPhone(cart, anyLong(), quantity);
+        Optional<CartItem> cartItem = getCartItemByPhone(phone);
 
-        Optional<CartItem> cartItem = cart.getCartItems().stream()
-                .filter(item -> item.getPhone().equals(phone)).findFirst();
         assertTrue(cartItem.isPresent());
         assertEquals(cartItem.get().getQuantity(), quantity);
+    }
+
+    private Optional<CartItem> getCartItemByPhone(Phone phone){
+         return cart.getCartItems().stream()
+                .filter(item -> item.getPhone().equals(phone))
+                .findFirst();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -98,8 +99,8 @@ public class HttpSessionCartServiceTest {
 
     @Test(expected = PhoneNotFoundException.class)
     public void addNewPhoneThrowPhoneNotFoundException() {
-        cartService.addPhone(cart, anyLong(), 1L);
         when(phoneDao.get(anyLong())).thenReturn(Optional.empty());
+        cartService.addPhone(cart, anyLong(), 1L);
     }
 
     @Test
@@ -107,12 +108,56 @@ public class HttpSessionCartServiceTest {
         CartItem cartItem = cart.getCartItems().get(0);
         Long quantityBeforeAdding = cartItem.getQuantity();
         Long quantity = 3L;
-        when(phoneDao.get(anyLong())).thenReturn(Optional.of(cart.getCartItems().get(0).getPhone()));
+
+        when(phoneDao.get(anyLong())).thenReturn(Optional.of(cartItem.getPhone()));
         cartService.addPhone(cart, anyLong(), quantity);
 
         assertEquals((long) cartItem.getQuantity(), quantity + quantityBeforeAdding);
     }
 
+    @Test
+    public void updateCartSuccessTest() {
+        Long quantity1 = 2L;
+        Long quantity2 = 6L;
+
+        CartItem cartItem1 = cart.getCartItems().get(0);
+        CartItem cartItem2 = new CartItem(new Phone(45L, new BigDecimal(200)), 1L);
+        cart.getCartItems().add(cartItem2);
+
+        Map<Long, Long> map = new HashMap<>();
+        map.put(cartItem1.getPhone().getId(), quantity1);
+        map.put(cartItem2.getPhone().getId(), quantity2);
+
+        cartService.update(cart, map);
+
+        assertEquals(cartItem1.getQuantity(), quantity1);
+        assertEquals(cartItem2.getQuantity(), quantity2);
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void updateCartPhoneWithThisIdNotExistTest() {
+        Map<Long, Long> map = Collections.singletonMap(100L, 5L);
+        cartService.update(cart, map);
+    }
+
+    @Test
+    public void removeExistedCartItemTest() {
+        int oldSize = cart.getCartItems().size();
+        CartItem testCartItem = cart.getCartItems().get(0);
+        Phone testPhone = testCartItem.getPhone();
+
+        cartService.remove(cart, testPhone.getId());
+        assertFalse(cart.getCartItems().contains(testCartItem));
+        assertNotEquals(oldSize, cart.getCartItems().size());
+    }
+
+    @Test
+    public void removeNotExistedCartItemTest() {
+        int oldSize = cart.getCartItems().size();
+
+        cartService.remove(cart, 0L);
+        assertEquals(oldSize, cart.getCartItems().size());
+    }
 
     @Test
     public void recalculateCartTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, OutOfStockException {
@@ -121,20 +166,21 @@ public class HttpSessionCartServiceTest {
         when(phoneDao.get(newPhone.getId())).thenReturn(Optional.of(newPhone));
         cartService.addPhone(cart, newPhone.getId(), quantityNewPhone);
 
-        long quantityExistedPhoneBeforeAdding = cart.getCartItems().get(0).getQuantity();
-        long quantityExistedPhone = 3;
-        Phone existedProduct = cart.getCartItems().get(0).getPhone();
-        when(phoneDao.get(existedProduct.getId())).thenReturn(Optional.of(existedProduct));
-        cartService.addPhone(cart, existedProduct.getId(), quantityExistedPhone);
+        long quantityExistedPhone = cart.getCartItems().get(0).getQuantity();
+        Phone existedPhone = cart.getCartItems().get(0).getPhone();
 
+        long totalCost = newPhone.getPrice().longValue() * quantityNewPhone
+                + existedPhone.getPrice().longValue() * quantityExistedPhone;
+
+        recalculateCart();
+
+        assertEquals((long) cart.getTotalQuantity(), quantityNewPhone + quantityExistedPhone);
+        assertEquals(cart.getTotalCost(), new BigDecimal(totalCost));
+    }
+
+    private void recalculateCart() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method recalculateCart = HttpSessionCartService.class.getDeclaredMethod("recalculateCart", Cart.class);
         recalculateCart.setAccessible(true);
         recalculateCart.invoke(cartService, cart);
-
-        long totalCost = newPhone.getPrice().longValue() * quantityNewPhone
-                + existedProduct.getPrice().longValue() * (quantityExistedPhone + quantityExistedPhoneBeforeAdding);
-
-        assertEquals((long) cart.getTotalQuantity(), quantityNewPhone + quantityExistedPhone + quantityExistedPhoneBeforeAdding);
-        assertEquals(cart.getTotalCost(), new BigDecimal(totalCost));
     }
 }

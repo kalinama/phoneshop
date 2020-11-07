@@ -1,11 +1,9 @@
 package com.es.phoneshop.web.validator;
 
-import com.es.phoneshop.web.entity.InputForAddToCart;
-import org.junit.Before;
+import com.es.phoneshop.web.entity.InputQuantityUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.Errors;
 
@@ -15,11 +13,11 @@ import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class InputForAddToCartValidatorTest {
+public class InputQuantityUnitValidatorTest {
     @Mock
     private Errors errors;
 
-    private final InputForAddToCartValidator validator = new InputForAddToCartValidator();
+    private final InputQuantityValidator validator = new InputQuantityValidator();
     private final Locale locale = new Locale("en");
 
     public static final String FRACTIONAL_NUMBER = "Can't enter fractional number";
@@ -29,7 +27,7 @@ public class InputForAddToCartValidatorTest {
 
     @Test
     public void getNumberFromQuantityParamTestSuccess() {
-        InputForAddToCart input = new InputForAddToCart(1L, "2", locale);
+        InputQuantityUnit input = new InputQuantityUnit("2", locale);
 
         validator.validate(input, errors);
         assertFalse(errors.hasErrors());
@@ -37,7 +35,7 @@ public class InputForAddToCartValidatorTest {
 
     @Test
     public void getNumberFromQuantityParamNotNumberError() {
-        InputForAddToCart input = new InputForAddToCart(1L, "hh", locale);
+        InputQuantityUnit input = new InputQuantityUnit("hh", locale);
 
         validator.validate(input, errors);
         verify(errors).reject("quantity", NOT_NUMBER);
@@ -45,7 +43,7 @@ public class InputForAddToCartValidatorTest {
 
     @Test
     public void getNumberFromQuantityParamFractionalNumberError() {
-        InputForAddToCart input = new InputForAddToCart(1L, "1.9", locale);
+        InputQuantityUnit input = new InputQuantityUnit("1.9", locale);
 
         validator.validate(input, errors);
         verify(errors).reject("quantity", FRACTIONAL_NUMBER);
@@ -53,7 +51,7 @@ public class InputForAddToCartValidatorTest {
 
     @Test
     public void getNumberFromQuantityParamNegativeNumberError() {
-        InputForAddToCart input = new InputForAddToCart(1L, "-1", locale);
+        InputQuantityUnit input = new InputQuantityUnit("-1", locale);
 
         validator.validate(input, errors);
         verify(errors).reject("quantity", NOT_POSITIVE_NUMBER);

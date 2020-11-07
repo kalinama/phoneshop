@@ -1,6 +1,8 @@
-package com.es.core.phone.dao;
+package com.es.core.phone.dao.impl;
 
+import com.es.core.phone.dao.StockDao;
 import com.es.core.phone.dao.exception.PrimaryKeyUniquenessException;
+import com.es.core.phone.dao.impl.JdbcStockDao;
 import com.es.core.phone.entity.Color;
 import com.es.core.phone.entity.Phone;
 import com.es.core.phone.entity.Stock;
