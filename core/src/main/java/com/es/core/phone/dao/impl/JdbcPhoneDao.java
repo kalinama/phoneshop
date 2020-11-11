@@ -27,6 +27,8 @@ public class JdbcPhoneDao implements PhoneDao {
     @Resource
     private JdbcTemplate jdbcTemplate;
     @Resource
+    private NamedParameterJdbcTemplate parameterJdbcTemplate;
+    @Resource
     private ColorDao jdbcColorDao;
     @Resource
     private  JdbcHelper defaultJdbcHelper;
@@ -46,7 +48,7 @@ public class JdbcPhoneDao implements PhoneDao {
                     "LEFT JOIN phone2color ON phones.id = phone2color.phoneId " +
                     "LEFT JOIN stocks ON phones.id = stocks.phoneId " +
                     "WHERE phone2color.phoneId IS NULL " +
-                    "OR stocks.phoneId IS NULL OR stocks.stock < 1 OR phones.price IS NULL";
+                    "OR stocks.phoneId IS NULL OR stocks.stock < 0 OR phones.price IS NULL";
 
     private final static String SUBQUERY_FOR_MATCHING_PHONES = " AND (lower(phones.model) LIKE '%%%s%%' OR lower(phones.brand) LIKE '%%%s%%')";
 
@@ -142,9 +144,7 @@ public class JdbcPhoneDao implements PhoneDao {
     }
 
     private void rewritePhoneAndRemoveBindToColors(Phone phone) {
-        NamedParameterJdbcTemplate parameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-        parameterJdbcTemplate.update(QUERY_FOR_PHONES_UPDATE,
-                new BeanPropertySqlParameterSource(phone));
+        parameterJdbcTemplate.update(QUERY_FOR_PHONES_UPDATE, new BeanPropertySqlParameterSource(phone));
         parameterJdbcTemplate.update(QUERY_FOR_PHONE2COLOR_DELETE,
                 new MapSqlParameterSource("id", phone.getId()));
     }

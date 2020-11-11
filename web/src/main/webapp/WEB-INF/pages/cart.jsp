@@ -6,7 +6,7 @@
 <tags:master pageTitle="Cart">
 
     <c:if test="${empty cart.cartItems}">
-        Your cart is empty.
+        <h2>Your cart is empty.</h2>
     </c:if>
     <c:if test="${not empty cart.cartItems}">
         <h3>Cart</h3>
@@ -68,7 +68,10 @@
 
     <div class="d-flex justify-content-end" >
         <button style="margin-right: 10px" class="btn btn-dark" type="submit" form="cartUpdate" >Update</button>
-    <button class="btn btn-dark"  >Order</button></div>
+            <button class="btn btn-dark" form="orderForm" >Order</button>
+    </div>
+
+        <form id="orderForm" action="${pageContext.request.contextPath}/order"></form>
 
         <form method="post" action="${pageContext.request.contextPath}/cart" id="cartUpdate">
             <input type="hidden" name="_method" value="put"/>

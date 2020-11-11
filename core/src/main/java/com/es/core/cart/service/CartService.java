@@ -11,6 +11,8 @@ public interface CartService {
 
     Cart getCart(HttpSession httpSession);
 
+    void clearCart(HttpSession httpSession);
+
     void addPhone(Cart cart, Long phoneId, Long quantity);
 
     /**

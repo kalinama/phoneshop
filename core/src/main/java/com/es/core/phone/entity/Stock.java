@@ -4,8 +4,8 @@ import java.util.Objects;
 
 public class Stock {
     private Phone phone;
-    private Integer stock;
-    private Integer reserved;
+    private Long stock;
+    private Long reserved;
 
     public Phone getPhone() {
         return phone;
@@ -15,19 +15,19 @@ public class Stock {
         this.phone = phone;
     }
 
-    public Integer getStock() {
+    public Long getStock() {
         return stock;
     }
 
-    public void setStock(Integer stock) {
+    public void setStock(Long stock) {
         this.stock = stock;
     }
 
-    public Integer getReserved() {
+    public Long getReserved() {
         return reserved;
     }
 
-    public void setReserved(Integer reserved) {
+    public void setReserved(Long reserved) {
         this.reserved = reserved;
     }
 

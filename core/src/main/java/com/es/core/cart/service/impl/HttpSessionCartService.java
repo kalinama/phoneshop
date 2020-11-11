@@ -35,6 +35,15 @@ public class HttpSessionCartService implements CartService {
     }
 
     @Override
+    public void clearCart(HttpSession httpSession) {
+        synchronized (httpSession) {
+            Cart cart = (Cart) httpSession.getAttribute(CART_SESSION_ATTRIBUTE);
+            cart.getCartItems().clear();
+            httpSession.setAttribute(CART_SESSION_ATTRIBUTE, null);
+        }
+    }
+
+    @Override
     public void addPhone(Cart cart, Long phoneId, Long quantity) {
         synchronized (cart) {
             if (quantity <= 0) {
@@ -77,6 +86,10 @@ public class HttpSessionCartService implements CartService {
     @Override
     public void update(Cart cart, Map<Long, Long> items) {
         synchronized (cart) {
+            if(items.containsValue(0L) || items.containsValue(null)){
+                throw new IllegalArgumentException();
+            }
+
             items.forEach((key, value) -> cart.getCartItems().stream()
                     .filter(item -> item.getPhone().getId().equals(key))
                     .findFirst()
