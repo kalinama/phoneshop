@@ -48,7 +48,7 @@ public class JdbcPhoneDao implements PhoneDao {
                     "LEFT JOIN phone2color ON phones.id = phone2color.phoneId " +
                     "LEFT JOIN stocks ON phones.id = stocks.phoneId " +
                     "WHERE phone2color.phoneId IS NULL " +
-                    "OR stocks.phoneId IS NULL OR stocks.stock < 0 OR phones.price IS NULL";
+                    "OR stocks.phoneId IS NULL OR stocks.stock < 1 OR phones.price IS NULL";
 
     private final static String SUBQUERY_FOR_MATCHING_PHONES = " AND (lower(phones.model) LIKE '%%%s%%' OR lower(phones.brand) LIKE '%%%s%%')";
 

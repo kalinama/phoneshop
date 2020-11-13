@@ -150,7 +150,7 @@
                 <p></p>
 
                 <div class="d-flex justify-content-end">
-                    <button class="btn btn-dark ${not empty availableStockForOutOfStockPhones ? 'disabled' : ''}">Place
+                    <button class="btn btn-dark" ${not empty availableStockForOutOfStockPhones ? 'disabled' : ''}>Place
                         order
                     </button>
                 </div>

@@ -9,7 +9,6 @@ import com.es.core.order.service.OrderService;
 import com.es.core.order.service.exception.OutOfStockException;
 import com.es.core.phone.service.StockService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,15 +46,17 @@ public class DefaultOrderService implements OrderService {
 
     @Override
     public void completeOrder(Order orderWithCustomerData, Cart cart) {
-        Order order = this.createOrder(cart);
-        orderWithCustomerData.setOrderItems(order.getOrderItems());
-        orderWithCustomerData.setSubtotal(order.getSubtotal());
-        orderWithCustomerData.setDeliveryPrice(order.getDeliveryPrice());
-        orderWithCustomerData.setTotalPrice(order.getTotalPrice());
+        synchronized (orderWithCustomerData) {
+            Order order = this.createOrder(cart);
+            orderWithCustomerData.setOrderItems(order.getOrderItems());
+            orderWithCustomerData.setSubtotal(order.getSubtotal());
+            orderWithCustomerData.setDeliveryPrice(order.getDeliveryPrice());
+            orderWithCustomerData.setTotalPrice(order.getTotalPrice());
 
-        orderWithCustomerData.setSecureId(UUID.randomUUID().toString());
-        orderWithCustomerData.setOrderingDate(LocalDate.now());
-        orderWithCustomerData.setStatus(OrderStatus.NEW);
+            orderWithCustomerData.setSecureId(UUID.randomUUID().toString());
+            orderWithCustomerData.setOrderingDate(LocalDate.now());
+            orderWithCustomerData.setStatus(OrderStatus.NEW);
+        }
     }
 
     @Override
@@ -71,9 +72,11 @@ public class DefaultOrderService implements OrderService {
     @Override
     @Transactional(rollbackFor = OutOfStockException.class)
     public void placeOrder(Order order) throws OutOfStockException {
-        jdbcOrderDao.save(order);
-        for (OrderItem orderItem : order.getOrderItems()) {
-            stockService.reservePhone(orderItem.getPhone().getId(), orderItem.getQuantity());
+        synchronized (order) {
+            jdbcOrderDao.save(order);
+            for (OrderItem orderItem : order.getOrderItems()) {
+                stockService.reservePhone(orderItem.getPhone().getId(), orderItem.getQuantity());
+            }
         }
     }
 

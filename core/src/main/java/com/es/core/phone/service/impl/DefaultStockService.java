@@ -15,7 +15,7 @@ public class DefaultStockService implements StockService {
     private StockDao jdbcStockDao;
 
     @Override
-    public void reservePhone(Long phoneId, Long quantity) throws OutOfStockException {
+    public synchronized void reservePhone(Long phoneId, Long quantity) throws OutOfStockException {
         Stock stock = jdbcStockDao.get(phoneId).orElseThrow(IllegalArgumentException::new);
         subtractStock(stock, quantity);
         stock.setReserved(stock.getReserved() + quantity);
@@ -23,7 +23,7 @@ public class DefaultStockService implements StockService {
     }
 
     @Override
-    public void cancelPhoneReservation(Long phoneId, Long quantity) {
+    public synchronized void cancelPhoneReservation(Long phoneId, Long quantity) {
         Stock stock = jdbcStockDao.get(phoneId).orElseThrow(IllegalArgumentException::new);
         subtractReserved(stock, quantity);
         stock.setStock(stock.getStock() + quantity);
@@ -31,7 +31,7 @@ public class DefaultStockService implements StockService {
     }
 
     @Override
-    public void deliverPhone(Long phoneId, Long quantity) {
+    public synchronized void deliverPhone(Long phoneId, Long quantity) {
         Stock stock = jdbcStockDao.get(phoneId).orElseThrow(IllegalArgumentException::new);
         subtractReserved(stock, quantity);
         jdbcStockDao.save(stock);

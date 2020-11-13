@@ -1,9 +1,7 @@
 package com.es.phoneshop.web.controller.pages;
 
-import com.es.core.cart.service.exception.PhoneNotFoundException;
 import com.es.core.order.dao.OrderDao;
 import com.es.core.order.entity.Order;
-import com.es.core.order.service.OrderService;
 import com.es.core.order.service.exception.OrderNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

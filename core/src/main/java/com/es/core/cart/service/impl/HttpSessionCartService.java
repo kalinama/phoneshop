@@ -57,7 +57,7 @@ public class HttpSessionCartService implements CartService {
             }
 
             Optional<CartItem> existedCartItem = cart.getCartItems().stream()
-                    .filter(cartItem -> cartItem.getPhone().equals(phone.get()))
+                    .filter(cartItem -> cartItem.getPhone().getId().equals(phone.get().getId()))
                     .findAny();
 
             if (!existedCartItem.isPresent()) {
@@ -86,7 +86,7 @@ public class HttpSessionCartService implements CartService {
     @Override
     public void update(Cart cart, Map<Long, Long> items) {
         synchronized (cart) {
-            if(items.containsValue(0L) || items.containsValue(null)){
+            if (items.containsValue(0L) || items.containsValue(null)) {
                 throw new IllegalArgumentException();
             }
 

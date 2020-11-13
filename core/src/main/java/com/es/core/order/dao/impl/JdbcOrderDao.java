@@ -2,6 +2,7 @@ package com.es.core.order.dao.impl;
 
 import com.es.core.order.dao.OrderDao;
 import com.es.core.order.dao.OrderItemDao;
+import com.es.core.order.dao.exception.OrderImmutabilityException;
 import com.es.core.order.entity.Order;
 import com.es.core.phone.dao.exception.PrimaryKeyUniquenessException;
 import com.es.core.phone.dao.helper.JdbcHelper;
@@ -11,7 +12,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,18 +27,10 @@ public class JdbcOrderDao implements OrderDao {
     @Resource
     private JdbcTemplate jdbcTemplate;
     @Resource
-    private NamedParameterJdbcTemplate parameterJdbcTemplate;
-    @Resource
     private JdbcHelper defaultJdbcHelper;
     @Resource
     private OrderItemDao jdbcOrderItemDao;
 
-    private final static String QUERY_FOR_ORDERS_UPDATE = "UPDATE orders SET secureId=:secureId, subtotal=:subtotal, " +
-            "deliveryPrice=:deliveryPrice, totalPrice=:totalPrice, firstName=:firstName, lastName=:lastName, " +
-            "deliveryAddress=:deliveryAddress, contactPhoneNo=:contactPhoneNo, additionalInformation=:additionalInformation, " +
-            "date=:date, status=:status WHERE id=:id";
-
-    private final static String QUERY_FOR_ORDER2ORDER_ITEM_DELETE = "DELETE FROM order2orderItem WHERE orderId=:id";
 
     private final static String QUERY_FOR_ORDERS_GET_ORDER_BY_SECURE_ID = "SELECT searchedOrder.id AS id, secureId, subtotal, " +
             "deliveryPrice, totalPrice, firstName, lastName, deliveryAddress, contactPhoneNo, additionalInformation, orderingDate, " +
@@ -93,7 +85,7 @@ public class JdbcOrderDao implements OrderDao {
             order.setId(newId.longValue());
         } else if (defaultJdbcHelper.isEntityWithParamsExists("orders",
                 Collections.singletonMap("id", order.getId().toString()))) {
-            rewriteOrderAndRemoveBindToItems(order);
+            throw new OrderImmutabilityException();
         } else {
             defaultJdbcHelper.insert("orders", parameterSource);
         }
@@ -107,12 +99,6 @@ public class JdbcOrderDao implements OrderDao {
                     .addValue("orderId", order.getId())
                     .addValue("orderItemId", orderItem.getId()));
         });
-    }
-
-    private void rewriteOrderAndRemoveBindToItems(Order order) {
-        parameterJdbcTemplate.update(QUERY_FOR_ORDERS_UPDATE, new BeanPropertySqlParameterSource(order));
-        parameterJdbcTemplate.update(QUERY_FOR_ORDER2ORDER_ITEM_DELETE,
-                new MapSqlParameterSource("id", order.getId()));
     }
 
 }
