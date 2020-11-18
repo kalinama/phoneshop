@@ -35,6 +35,7 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 
 @ContextConfiguration("classpath:context/applicationContext-core-test.xml")
 @Transactional
@@ -47,6 +48,7 @@ public class JdbcPhoneDaoIntTest {
     private List<Phone> testPhones;
     private List<Stock> testPhoneStocks;
     private Phone testNewPhone;
+    private Long phoneIdWithoutStock;
 
     private final static String tableName = "phones";
 
@@ -58,33 +60,40 @@ public class JdbcPhoneDaoIntTest {
                                                             "ON phone2colorExcerpt.colorId = colors.id";
     @Before
     public void setUp() {
+        testNewPhone = createTestPhone();
         List<Long> ids = Arrays.asList(1000L, 1002L, 1057L, 1092L, 1132L, 1192L, 1577L, 1777L, 1864L, 1914L, 8763L);
+        phoneIdWithoutStock = 1002L;
         testPhones = new ArrayList<>();
         testPhoneStocks = new ArrayList<>();
+
         for (long id : ids) {
             Phone testPhone = jdbcTemplate.queryForObject(QUERY_GET_PHONE_BY_ID, new Object[]{id},
                     new BeanPropertyRowMapper<>(Phone.class));
             List<Color> testPhoneColors = jdbcTemplate.query(QUERY_GET_PHONE_COLORS, new Object[]{id},
                     new BeanPropertyRowMapper<>(Color.class));
             testPhone.setColors(new HashSet<>(testPhoneColors));
-            Stock stock = jdbcTemplate.queryForObject(QUERY_GET_PHONE_STOCKS, new Object[]{id},
-                    new BeanPropertyRowMapper<>(Stock.class));
-            stock.setPhone(testPhone);
-            testPhoneStocks.add(stock);
+            if (id != phoneIdWithoutStock) {
+                Stock stock = jdbcTemplate.queryForObject(QUERY_GET_PHONE_STOCKS, new Object[]{id},
+                        new BeanPropertyRowMapper<>(Stock.class));
+                stock.setPhone(testPhone);
+                testPhoneStocks.add(stock);
+            }
             testPhones.add(testPhone);
         }
+    }
+
+    private Phone createTestPhone(){
         Set<Color> newPhoneColors = new HashSet<>(Arrays.asList(new Color(1000L, "Black"), new Color(1001L, "White"), new Color("Pink")));
-        testNewPhone = new Phone(null, "POJ", "POJ 1011 G9", null, new BigDecimal("10.1"), 482, new BigDecimal("276.0"), new BigDecimal("167.0"), new BigDecimal("12.6"), null, "Tablet", "Android (4.0)", newPhoneColors, "1280 x  800", 149, null, null, new BigDecimal("1.3"), null, new BigDecimal("8.0"), null, null, null, "2.1, EDR", "GPS", "manufacturer/ARCHOS/ARCHOS 101 G9.jpg", "The ARCHOS 101 G9 is a 10.1'' tablet, equipped with Google's open source OS. It offers a multi-core ARM CORTEX A9 processor at 1GHz, 8 or 16GB internal memory, microSD card slot, GPS, Wi-Fi, Bluetooth 2.1, and more.");
+        return new Phone(null, "POJ", "POJ 1011 G9", null, new BigDecimal("10.1"), 482, new BigDecimal("276.0"), new BigDecimal("167.0"), new BigDecimal("12.6"), null, "Tablet", "Android (4.0)", newPhoneColors, "1280 x  800", 149, null, null, new BigDecimal("1.3"), null, new BigDecimal("8.0"), null, null, null, "2.1, EDR", "GPS", "manufacturer/ARCHOS/ARCHOS 101 G9.jpg", "The ARCHOS 101 G9 is a 10.1'' tablet, equipped with Google's open source OS. It offers a multi-core ARM CORTEX A9 processor at 1GHz, 8 or 16GB internal memory, microSD card slot, GPS, Wi-Fi, Bluetooth 2.1, and more.");
     }
 
     @Test
     public void getEntityByIdSuccessTest() {
-        long id = 1000L;
+        Phone expectedPhone = testPhones.get(0);
+        long id = expectedPhone.getId();
         Optional<Phone> actualPhone = jdbcPhoneDao.get(id);
-        Optional<Phone> expectedPhone = testPhones.stream()
-                .filter(phone -> phone.getId().equals(id))
-                .findFirst();
-        assertEquals(expectedPhone, actualPhone);
+
+        assertReflectionEquals(expectedPhone, actualPhone.get());
     }
 
     @Test(expected = PrimaryKeyUniquenessException.class)
@@ -104,18 +113,18 @@ public class JdbcPhoneDaoIntTest {
     public void getEntityByIdEmptyTest() {
         Optional<Phone> expectedPhone = Optional.empty();
         Optional<Phone> actualPhone = jdbcPhoneDao.get(999L);
-        assertEquals(expectedPhone, actualPhone);
+        assertReflectionEquals(expectedPhone, actualPhone);
     }
 
     private Stream<Phone> getFilterPhones() {
         return testPhones.stream()
                 .filter(phone -> !phone.getColors().isEmpty())
                 .filter(phone -> testPhoneStocks.stream()
-                        .anyMatch(stock -> phone.equals(stock.getPhone()) && stock.getStock()>0))
+                        .anyMatch(stock -> phone.getId().equals(stock.getPhone().getId()) && stock.getStock() > 0))
                 .filter(phone -> !(phone.getPrice() == null) && (phone.getPrice().compareTo(new BigDecimal(0)) > 0));
     }
 
- @Test
+    @Test
     public void findAllPhonesWithColorsWithStockWithPriceWithoutQueryTest() {
         int offset = 1;
         int limit = 3;
@@ -124,7 +133,7 @@ public class JdbcPhoneDaoIntTest {
                 .skip(offset)
                 .limit(limit)
                 .collect(Collectors.toList());
-        assertEquals(expectedPhones, actualPhones);
+        assertReflectionEquals(expectedPhones, actualPhones);
     }
 
     @Test
@@ -139,7 +148,7 @@ public class JdbcPhoneDaoIntTest {
                 .skip(offset)
                 .limit(limit)
                 .collect(Collectors.toList());
-        assertEquals(expectedPhones, actualPhones);
+        assertReflectionEquals(expectedPhones, actualPhones);
     }
 
     @Test
@@ -152,7 +161,7 @@ public class JdbcPhoneDaoIntTest {
                 .skip(offset)
                 .limit(limit)
                 .collect(Collectors.toList());
-        assertEquals(expectedPhones, actualPhones);
+        assertReflectionEquals(expectedPhones, actualPhones);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -225,6 +234,7 @@ public class JdbcPhoneDaoIntTest {
         int quantityOfPhonesBeforeSave = JdbcTestUtils.countRowsInTable(jdbcTemplate, tableName);
         jdbcPhoneDao.save(testNewPhone);
         int quantityOfPhonesAfterSave = JdbcTestUtils.countRowsInTable(jdbcTemplate, tableName);
+
         if (isAdded) {
             assertSame(quantityOfPhonesBeforeSave + 1, quantityOfPhonesAfterSave);
         } else {
@@ -239,6 +249,7 @@ public class JdbcPhoneDaoIntTest {
         List<Color> actualPhoneColors = jdbcTemplate.query(QUERY_GET_PHONE_COLORS, new Object[]{testNewPhone.getId()},
                 new BeanPropertyRowMapper<>(Color.class));
         actualPhone.setColors(new HashSet<>(actualPhoneColors));
-        assertEquals(testNewPhone, actualPhone);
+
+        assertReflectionEquals(testNewPhone, actualPhone);
     }
 }

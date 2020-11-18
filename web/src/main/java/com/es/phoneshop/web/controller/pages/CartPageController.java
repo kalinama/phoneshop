@@ -4,11 +4,9 @@ import com.es.core.cart.entity.Cart;
 import com.es.core.cart.service.CartService;
 import com.es.phoneshop.web.controller.helper.BindingResultHelper;
 import com.es.phoneshop.web.entity.InputQuantityUnit;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.DataBinder;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,13 +18,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping(value = "/cart")
 public class CartPageController {
-    @Resource
-    private CartService httpCartService;
+    @Resource(name = "httpSessionCartService")
+    private CartService cartService;
 
     @Resource(name = "inputQuantityValidator")
     private Validator quantityValidator;
@@ -36,14 +33,14 @@ public class CartPageController {
 
     @GetMapping
     public String getCart(HttpSession httpSession, Model model) {
-        model.addAttribute("cart",httpCartService.getCart(httpSession));
+        model.addAttribute("cart", cartService.getCart(httpSession));
         return "cart";
     }
 
     @DeleteMapping("/{id}")
     public String deleteCartItem(@PathVariable Long id, HttpSession httpSession) {
-        Cart cart = httpCartService.getCart(httpSession);
-        httpCartService.remove(cart, id);
+        Cart cart = cartService.getCart(httpSession);
+        cartService.remove(cart, id);
         return "redirect:/cart";
     }
 
@@ -53,7 +50,7 @@ public class CartPageController {
                            Locale locale, HttpSession httpSession, Model model) throws ParseException {
         Map<Long, String> errors = new HashMap<>();
         Map<Long, Long> rightInput = new HashMap<>();
-        Cart cart = httpCartService.getCart(httpSession);
+        Cart cart = cartService.getCart(httpSession);
 
         for (int i = 0; i < phoneIds.size(); i++) {
             InputQuantityUnit input = new InputQuantityUnit(quantities.get(i), locale);
@@ -66,7 +63,7 @@ public class CartPageController {
         }
 
         if (errors.isEmpty()) {
-            httpCartService.update(cart, rightInput);
+            cartService.update(cart, rightInput);
         } else {
             model.addAttribute("errors", errors);
         }

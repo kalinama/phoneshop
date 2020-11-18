@@ -37,7 +37,7 @@ insert into phone2color (phoneId, colorId) values (8763, 1000);
 insert into phone2color (phoneId, colorId) values (8763, 1001);
 
 insert into stocks (phoneId, stock, reserved) values (1000, 11, 0);
-insert into stocks (phoneId, stock, reserved) values (1002, 0, 1);
+--insert into stocks (phoneId, stock, reserved) values (1002, 0, 1);
 insert into stocks (phoneId, stock, reserved) values (1057, 13, 2);
 insert into stocks (phoneId, stock, reserved) values (1092, 2, 1);
 insert into stocks (phoneId, stock, reserved) values (1132, 12, 0);
@@ -48,4 +48,11 @@ insert into stocks (phoneId, stock, reserved) values (1864, 19, 2);
 insert into stocks (phoneId, stock, reserved) values (1914, 29, 0);
 insert into stocks (phoneId, stock, reserved) values (8763, 10, 2);
 
+insert into orders (id, secureId, subtotal, deliveryPrice, totalPrice, firstName, lastName, deliveryAddress, contactPhoneNo, additionalInformation, orderingDate, status) values (1, '1020bdad-3e27-4265-b175-1a3431f0a76a', 300, 5, 305, 'Jane', 'Jones', '71 Cherry Court Southampton', '+1-541-754-3010', null, '2020-11-13', 'NEW');
+
+insert into orderItems (id, phoneId, quantity) values (1, 1057, 1);
+insert into orderItems (id, phoneId, quantity) values (2, 1192, 3);
+
+insert into order2orderItem (orderId, orderItemId) values (1, 1);
+insert into order2orderItem (orderId, orderItemId) values (1, 2);
 

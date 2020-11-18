@@ -16,6 +16,8 @@ import java.util.Collections;
 @Component
 public class JdbcColorDao implements ColorDao {
     @Resource
+    private NamedParameterJdbcTemplate parameterJdbcTemplate;
+    @Resource
     private JdbcTemplate jdbcTemplate;
     @Resource
     private JdbcHelper defaultJdbcHelper;
@@ -23,15 +25,14 @@ public class JdbcColorDao implements ColorDao {
     private final static String QUERY_FOR_COLORS_UPDATE = "UPDATE colors SET code = :code WHERE id = :id";
 
     @Override
-    public void save(Color color) {
+    public void save(final Color color) {
         if (color.getId() == null) {
             Number newColorId = defaultJdbcHelper.insertAndReturnGeneratedKey("colors",
                     new BeanPropertySqlParameterSource(color), "id");
             color.setId(newColorId.longValue());
         } else if (defaultJdbcHelper.isEntityWithParamsExists("colors",
                 Collections.singletonMap("id", color.getId().toString()))) {
-            new NamedParameterJdbcTemplate(jdbcTemplate)
-                    .update(QUERY_FOR_COLORS_UPDATE, new BeanPropertySqlParameterSource(color));
+            parameterJdbcTemplate.update(QUERY_FOR_COLORS_UPDATE, new BeanPropertySqlParameterSource(color));
         } else {
             defaultJdbcHelper.insert("colors", new BeanPropertySqlParameterSource(color));
         }

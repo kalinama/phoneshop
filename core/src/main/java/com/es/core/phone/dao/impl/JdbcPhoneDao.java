@@ -27,6 +27,8 @@ public class JdbcPhoneDao implements PhoneDao {
     @Resource
     private JdbcTemplate jdbcTemplate;
     @Resource
+    private NamedParameterJdbcTemplate parameterJdbcTemplate;
+    @Resource
     private ColorDao jdbcColorDao;
     @Resource
     private  JdbcHelper defaultJdbcHelper;
@@ -142,9 +144,7 @@ public class JdbcPhoneDao implements PhoneDao {
     }
 
     private void rewritePhoneAndRemoveBindToColors(Phone phone) {
-        NamedParameterJdbcTemplate parameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-        parameterJdbcTemplate.update(QUERY_FOR_PHONES_UPDATE,
-                new BeanPropertySqlParameterSource(phone));
+        parameterJdbcTemplate.update(QUERY_FOR_PHONES_UPDATE, new BeanPropertySqlParameterSource(phone));
         parameterJdbcTemplate.update(QUERY_FOR_PHONE2COLOR_DELETE,
                 new MapSqlParameterSource("id", phone.getId()));
     }

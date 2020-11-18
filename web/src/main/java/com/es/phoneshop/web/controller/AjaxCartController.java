@@ -20,8 +20,8 @@ import java.util.Locale;
 @Controller
 @RequestMapping(value = "/ajaxCart")
 public class AjaxCartController {
-    @Resource
-    private CartService httpCartService;
+    @Resource(name = "httpSessionCartService")
+    private CartService cartService;
 
     @Resource(name = "inputQuantityValidator")
     private Validator quantityValidator;
@@ -33,7 +33,7 @@ public class AjaxCartController {
 
     @GetMapping
     public @ResponseBody MiniCart getCart(HttpSession httpSession) {
-        Cart cart = httpCartService.getCart(httpSession);
+        Cart cart = cartService.getCart(httpSession);
         return new MiniCart(cart.getTotalQuantity(), cart.getTotalCost());
     }
 
@@ -49,8 +49,8 @@ public class AjaxCartController {
             return new AddToCartResponse(message, false);
         }
 
-        Cart cart = httpCartService.getCart(httpSession);
-        httpCartService.addPhone(cart, phoneId, parseQuantity(input));
+        Cart cart = cartService.getCart(httpSession);
+        cartService.addPhone(cart, phoneId, parseQuantity(input));
         MiniCart miniCart = new MiniCart(cart.getTotalQuantity(), cart.getTotalCost());
         return new AddToCartResponse(miniCart, MESSAGE_SUCCESS, true);
     }

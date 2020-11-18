@@ -27,8 +27,10 @@ public class ProductListPageController {
                                   @RequestParam(value = "query", required = false) String query, Model model) {
 
         int offset = (Integer.parseInt(page) - 1) * PHONES_QUANTITY_PER_PAGE;
+        int phonesQuantity = jdbcPhoneDao.getQuantity(query);
 
-        model.addAttribute("maxPageNumber", getMaxPageQuantity(jdbcPhoneDao.getQuantity(query)));
+        model.addAttribute("maxPageNumber", getMaxPageQuantity(phonesQuantity));
+        model.addAttribute("allPhonesQuantity", phonesQuantity);
         model.addAttribute("phones", jdbcPhoneDao.findAll(offset, PHONES_QUANTITY_PER_PAGE,
                 query, SortParameter.valueOf(sortParameter), SortOrder.valueOf(sortOrder)));
         return "productList";

@@ -1,11 +1,18 @@
 package com.es.core.phone.entity;
 
-import java.util.Objects;
-
 public class Stock {
     private Phone phone;
-    private Integer stock;
-    private Integer reserved;
+    private Long stock;
+    private Long reserved;
+
+    public Stock(Phone phone, Long stock, Long reserved) {
+        this.phone = phone;
+        this.stock = stock;
+        this.reserved = reserved;
+    }
+
+    public Stock() {
+    }
 
     public Phone getPhone() {
         return phone;
@@ -15,34 +22,20 @@ public class Stock {
         this.phone = phone;
     }
 
-    public Integer getStock() {
+    public Long getStock() {
         return stock;
     }
 
-    public void setStock(Integer stock) {
+    public void setStock(Long stock) {
         this.stock = stock;
     }
 
-    public Integer getReserved() {
+    public Long getReserved() {
         return reserved;
     }
 
-    public void setReserved(Integer reserved) {
+    public void setReserved(Long reserved) {
         this.reserved = reserved;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Stock stock1 = (Stock) o;
-        return Objects.equals(phone, stock1.phone) &&
-                Objects.equals(stock, stock1.stock) &&
-                Objects.equals(reserved, stock1.reserved);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(phone, stock, reserved);
-    }
 }
