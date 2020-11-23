@@ -22,7 +22,7 @@
     </div>
     <p>
     <c:if test="${not empty phones}">
-        <table class="table" style="table-layout: fixed">
+        <table class="table table-hover" style="table-layout: fixed">
             <thead class="thead-dark">
             <tr>
                 <th scope="col">Image</th>
@@ -54,7 +54,7 @@
             <tbody>
             <c:forEach var="phone" items="${phones}">
                 <c:set var="productDetailsLink" value="${pageContext.request.contextPath}/productDetails/${phone.id}"/>
-                <tr onmouseover="changeColor(this, true);" onmouseout="changeColor(this, false);">
+                <tr>
                     <td onclick="redirect('${productDetailsLink}')">
                         <img width="150"
                              src="https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/${phone.imageUrl}">

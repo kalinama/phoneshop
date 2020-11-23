@@ -21,7 +21,7 @@ public class OrderOverviewPageController {
 
     @GetMapping("{secureId}")
     public String  get(@PathVariable String secureId, Model model){
-        Order order = jdbcOrderDao.get(secureId)
+        Order order = jdbcOrderDao.getBySecureId(secureId)
                 .orElseThrow(()-> new OrderNotFoundException(secureId));
         model.addAttribute("order", order);
         return "orderOverview";
@@ -29,7 +29,7 @@ public class OrderOverviewPageController {
 
     @ExceptionHandler(OrderNotFoundException.class)
     public String handleCustomException(OrderNotFoundException ex, Model model) {
-        model.addAttribute("secureId", ex.getId());
+        model.addAttribute("id", ex.getId());
         return "/errors/orderNotFoundException";
     }
 }

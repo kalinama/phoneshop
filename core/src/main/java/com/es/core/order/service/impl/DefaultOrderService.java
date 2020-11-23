@@ -1,11 +1,13 @@
 package com.es.core.order.service.impl;
 
 import com.es.core.cart.entity.Cart;
+import com.es.core.order.StockOperation;
 import com.es.core.order.dao.OrderDao;
 import com.es.core.order.entity.Order;
 import com.es.core.order.entity.OrderItem;
 import com.es.core.order.entity.OrderStatus;
 import com.es.core.order.service.OrderService;
+import com.es.core.order.service.exception.EmptyCartException;
 import com.es.core.order.service.exception.OutOfStockException;
 import com.es.core.phone.service.StockService;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,10 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +34,9 @@ public class DefaultOrderService implements OrderService {
 
     @Override
     public Order createOrder(Cart cart) {
+        if (cart.getCartItems().isEmpty()) {
+            throw new EmptyCartException();
+        }
         Order order = new Order();
         List<OrderItem> items = getOrderItemsFromCart(cart, order);
 
@@ -78,6 +81,32 @@ public class DefaultOrderService implements OrderService {
                 stockService.reservePhone(orderItem.getPhone().getId(), orderItem.getQuantity());
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public void changeOrderStatus(Order order, OrderStatus orderStatus) {
+        synchronized (order) {
+            if (!order.getStatus().equals(OrderStatus.NEW)) {
+                throw new IllegalArgumentException();
+            }
+            switch (orderStatus) {
+                case DELIVERED:
+                    changeStockByOrder(stockService::deliverPhone, order);
+                    break;
+                case REJECTED:
+                    changeStockByOrder(stockService::cancelPhoneReservation, order);
+                    break;
+                default: return;
+            }
+            order.setStatus(orderStatus);
+            jdbcOrderDao.save(order);
+        }
+    }
+
+    private void changeStockByOrder(StockOperation stockOperation, Order order) {
+        order.getOrderItems().forEach(orderItem ->
+                stockOperation.accept(orderItem.getPhone().getId(), orderItem.getQuantity()));
     }
 
     private List<OrderItem> getOrderItemsFromCart(Cart cart, Order order) {
