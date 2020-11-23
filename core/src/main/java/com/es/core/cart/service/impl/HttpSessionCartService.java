@@ -93,7 +93,7 @@ public class HttpSessionCartService implements CartService {
             items.forEach((key, value) -> cart.getCartItems().stream()
                     .filter(item -> item.getPhone().getId().equals(key))
                     .findFirst()
-                    .get()
+                    .orElseThrow(IllegalArgumentException::new)
                     .setQuantity(value));
             recalculateCart(cart);
         }

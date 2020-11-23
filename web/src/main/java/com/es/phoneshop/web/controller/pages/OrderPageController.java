@@ -1,8 +1,10 @@
 package com.es.phoneshop.web.controller.pages;
 
 import com.es.core.cart.service.CartService;
+import com.es.core.cart.service.exception.PhoneNotFoundException;
 import com.es.core.order.entity.Order;
 import com.es.core.order.service.OrderService;
+import com.es.core.order.service.exception.EmptyCartException;
 import com.es.core.order.service.exception.OutOfStockException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import javax.swing.border.EmptyBorder;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -74,5 +77,10 @@ public class OrderPageController {
 
         cartService.clearCart(httpSession);
         return "redirect:/orderOverview/" + order.getSecureId();
+    }
+
+    @ExceptionHandler(EmptyCartException.class)
+    public String handleCustomException(EmptyCartException ex, Model model) {
+        return "/errors/emptyCartException";
     }
 }

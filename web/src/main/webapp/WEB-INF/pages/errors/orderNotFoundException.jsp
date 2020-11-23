@@ -2,6 +2,6 @@
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
  <tags:master pageTitle="Order Not Found">
-   <h1> Order with id ${secureId} not found! <h1>
+   <h1> Order with id ${id} not found! <h1>
  </tags:master>
 

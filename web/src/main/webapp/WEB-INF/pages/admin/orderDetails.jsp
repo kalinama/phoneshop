@@ -3,10 +3,16 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
-<tags:master pageTitle="Order Overview">
+<tags:master pageTitle="Order Details">
 
-    <h3>Thank you for your order</h3>
-    <h4>Order number #${order.id}</h4>
+    <div class="d-flex flex-row">
+        <div class="mr-auto p-2">
+            <h4>Order number #${order.id}</h4>
+        </div>
+        <div class="ml-auto p-2">
+            <h4>Order status: <a id="status">${order.status.name()}</a></h4>
+        </div>
+    </div>
     <p>
     <table class="table" style="table-layout: fixed">
         <thead class="thead-dark">
@@ -56,7 +62,24 @@
             Total price: <fmt:formatNumber value="${order.totalPrice}" type="currency" currencySymbol="$"/>
         </div>
     </div>
+    <p></p>
 
+    <div class="d-flex flex-row">
+        <div class="mr-auto p-2">
+            <button class="btn btn-dark" onclick="redirect('${pageContext.request.contextPath}/admin/orders')">Back
+            </button>
+        </div>
+        <div class="ml-auto p-2">
+            <c:if test="${order.status.name().equals('NEW')}">
+                <button class="btn btn-dark" id="button-delivered" onclick="changeStatus(${order.id}, 'delivered')">
+                    Delivered
+                </button>
+                <button class="btn btn-dark" id="button-rejected" onclick="changeStatus(${order.id}, 'rejected')">
+                    Rejected
+                </button>
+            </c:if>
+        </div>
+    </div>
     <p></p>
 
     <h4>Customer information:</h4>
@@ -88,5 +111,6 @@
             </c:if>
         </table>
     </div>
+
 
 </tags:master>
