@@ -1,4 +1,4 @@
-package com.es.phoneshop.web.controller.pages.admin;
+package com.es.phoneshop.web.controller.pages;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/login")
-public class AdminAuthorizationController {
+public class LoginPageController {
     @GetMapping
     public String login(@RequestParam(value = "error", required = false) String error,
                         Authentication authentication, Model model) {

@@ -36,41 +36,39 @@
                 </a>
             </div>
             <div class="flex-column">
-                <sec:authorize access="!hasAuthority('ROLE_ADMIN')">
+                <sec:authorize access="hasAuthority('ROLE_ANONYMOUS')">
                     <tags:loginPopUp/>
                     <div class="p-2" style="text-align: end;">
-                    <a title="Log in as Admin" href="javascript:popUpShow()">
-                    <img width="30" src="${pageContext.request.contextPath}/images/login.svg"/>
-                    </a>
-                </div>
-
-
-            </sec:authorize>
-            <sec:authorize access="hasAuthority('ROLE_ADMIN')">
-                <div class="p-2" style="text-align: end; font-weight: bold; font-size: medium;">
-                    Admin
-                    <a title="Log out" href="javascript:formSubmit()">
-                    <img width="30" src="${pageContext.request.contextPath}/images/logout.svg"/>
-                        <form action="${pageContext.request.contextPath}/logout" method="post" id="logoutForm">
-
-                        </form>
-                    </a>
-                </div>
-
-            </sec:authorize>
-                <div class="d-flex flex-row ">
-
-                <a style="color: #343a40" href="${pageContext.request.contextPath}/cart" title="Cart">
-                    <div id="miniCart"
-                         class="border-dark p-2 border rounded d-flex align-items-center justify-content-end border-container-black">
+                        <a title="Log in as Admin" href="javascript:popUpShow()">
+                            <img width="30" src="${pageContext.request.contextPath}/images/login.svg"/>
+                        </a>
                     </div>
-                </a>
-                    <sec:authorize access="hasAuthority('ROLE_ADMIN')">
 
-                    <a style="color: #343a40; margin-left: 10px" href="${pageContext.request.contextPath}/admin/orders" title="Orders">
-                        <div class=" border-dark p-2 border rounded d-flex align-items-center justify-content-end border-container-black"> All Orders
+                </sec:authorize>
+                <sec:authorize access="hasAuthority('ROLE_ADMIN')">
+                    <div class="p-2" style="text-align: end; font-weight: bold; font-size: medium;">
+                        Admin
+                        <a title="Log out" href="javascript:formSubmit()">
+                            <img width="30" src="${pageContext.request.contextPath}/images/logout.svg"/>
+                            <form action="${pageContext.request.contextPath}/logout" method="post" id="logoutForm">
+
+                            </form>
+                        </a>
+                    </div>
+                </sec:authorize>
+                <div class="d-flex flex-row ">
+                    <a style="color: #343a40" href="${pageContext.request.contextPath}/cart" title="Cart">
+                        <div id="miniCart"
+                             class="border-dark p-2 border rounded d-flex align-items-center justify-content-end border-container-black">
                         </div>
                     </a>
+                    <sec:authorize access="hasAuthority('ROLE_ADMIN')">
+                        <a style="color: #343a40; margin-left: 10px"
+                           href="${pageContext.request.contextPath}/admin/orders" title="Orders">
+                            <div class=" border-dark p-2 border rounded d-flex align-items-center justify-content-end border-container-black">
+                                All Orders
+                            </div>
+                        </a>
                     </sec:authorize>
                 </div>
             </div>

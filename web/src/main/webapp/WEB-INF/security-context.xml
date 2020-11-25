@@ -20,7 +20,7 @@
 
         <logout logout-success-url="/" logout-url="/logout"/>
         <!-- enable csrf protection -->
-        <csrf request-matcher-ref="csrfMatcher" />
+        <csrf request-matcher-ref="csrfMatcher"/>
     </http>
 
     <b:bean id="csrfMatcher" class="org.springframework.security.web.util.matcher.OrRequestMatcher">
