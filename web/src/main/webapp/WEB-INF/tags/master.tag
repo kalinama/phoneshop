@@ -1,4 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 <%@ tag trimDirectiveWhitespaces="true" %>
 <%@ attribute name="pageTitle" required="true" %>
 
@@ -17,8 +19,10 @@
     <script type="text/javascript" src="${pageContext.request.contextPath}/js/ajaxCart.js"></script>
     <script type="text/javascript" src="${pageContext.request.contextPath}/js/ajaxOrder.js"></script>
     <script type="text/javascript" src="${pageContext.request.contextPath}/js/headerFixedOnScroll.js"></script>
-    <script type="text/javascript" src="${pageContext.request.contextPath}/js/redirect.js"></script>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/js/additionalFunctions.js"></script>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/js/csrfSetUp.js"></script>
 
+    <sec:csrfMetaTags/>
 </head>
 <body>
 <div class="card">
@@ -32,16 +36,43 @@
                 </a>
             </div>
             <div class="flex-column">
-                <div class="p-2" style="text-align: end;">
+                <sec:authorize access="!hasAuthority('ROLE_ADMIN')">
+                    <tags:loginPopUp/>
+                    <div class="p-2" style="text-align: end;">
+                    <a title="Log in as Admin" href="javascript:popUpShow()">
                     <img width="30" src="${pageContext.request.contextPath}/images/login.svg"/>
+                    </a>
                 </div>
+
+
+            </sec:authorize>
+            <sec:authorize access="hasAuthority('ROLE_ADMIN')">
+                <div class="p-2" style="text-align: end; font-weight: bold; font-size: medium;">
+                    Admin
+                    <a title="Log out" href="javascript:formSubmit()">
+                    <img width="30" src="${pageContext.request.contextPath}/images/logout.svg"/>
+                        <form action="${pageContext.request.contextPath}/logout" method="post" id="logoutForm">
+
+                        </form>
+                    </a>
+                </div>
+
+            </sec:authorize>
+                <div class="d-flex flex-row ">
+
                 <a style="color: #343a40" href="${pageContext.request.contextPath}/cart" title="Cart">
                     <div id="miniCart"
-                         class=" border-dark p-2 border rounded d-flex align-items-center justify-content-end"
-                         style="color: #ffffff; font-size: 20px; font-weight:bold; background-color: #343a40">
+                         class="border-dark p-2 border rounded d-flex align-items-center justify-content-end border-container-black">
                     </div>
                 </a>
-                <div class="p-2"></div>
+                    <sec:authorize access="hasAuthority('ROLE_ADMIN')">
+
+                    <a style="color: #343a40; margin-left: 10px" href="${pageContext.request.contextPath}/admin/orders" title="Orders">
+                        <div class=" border-dark p-2 border rounded d-flex align-items-center justify-content-end border-container-black"> All Orders
+                        </div>
+                    </a>
+                    </sec:authorize>
+                </div>
             </div>
         </div>
     </div>

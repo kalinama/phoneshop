@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:beans xmlns:b="http://www.springframework.org/schema/beans"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://www.springframework.org/schema/security" xmlns:util="http://www.springframework.org/schema/util"
+         xmlns:context="http://www.springframework.org/schema/context"
+         xsi:schemaLocation="http://www.springframework.org/schema/security
+         http://www.springframework.org/schema/security/spring-security.xsd
+        http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:property-placeholder location="/WEB-INF/conf/application.properties"/>
+
+    <http auto-config="true">
+        <intercept-url pattern="/admin/**" access="hasRole('ROLE_ADMIN')"/>
+        <form-login
+                login-page="/login"
+                default-target-url="/"
+                username-parameter="username"
+                password-parameter="password"/>
+
+        <logout logout-success-url="/" logout-url="/logout"/>
+        <!-- enable csrf protection -->
+        <csrf request-matcher-ref="csrfMatcher" />
+    </http>
+
+    <b:bean id="csrfMatcher" class="org.springframework.security.web.util.matcher.OrRequestMatcher">
+        <b:constructor-arg>
+            <util:list value-type="org.springframework.security.web.util.matcher.RequestMatcher">
+                <b:bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+                    <b:constructor-arg name="pattern" value="/admin/orders/*"/>
+                    <b:constructor-arg name="httpMethod" value="POST"/>
+                </b:bean>
+            </util:list>
+        </b:constructor-arg>
+    </b:bean>
+
+    <authentication-manager>
+        <authentication-provider>
+            <user-service>
+                <user name="${admin.name}" password="${admin.password}" authorities="ROLE_ADMIN"/>
+            </user-service>
+        </authentication-provider>
+    </authentication-manager>
+</b:beans>
