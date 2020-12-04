@@ -1,7 +1,7 @@
 package com.es.phoneshop.web.controller.pages;
 
-import com.es.core.order.dao.OrderDao;
 import com.es.core.order.entity.Order;
+import com.es.core.order.service.OrderService;
 import com.es.core.order.service.exception.OrderNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,12 +16,12 @@ import javax.annotation.Resource;
 @RequestMapping(value = "/orderOverview")
 public class OrderOverviewPageController {
 
-    @Resource
-    private OrderDao jdbcOrderDao;
+    @Resource(name = "defaultOrderService")
+    private OrderService orderService;
 
     @GetMapping("{secureId}")
     public String  get(@PathVariable String secureId, Model model){
-        Order order = jdbcOrderDao.getBySecureId(secureId)
+        Order order = orderService.getBySecureId(secureId)
                 .orElseThrow(()-> new OrderNotFoundException(secureId));
         model.addAttribute("order", order);
         return "orderOverview";

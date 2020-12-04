@@ -36,9 +36,11 @@
 
     <authentication-manager>
         <authentication-provider>
-            <user-service>
-                <user name="${admin.name}" password="${admin.password}" authorities="ROLE_ADMIN"/>
-            </user-service>
+            <jdbc-user-service data-source-ref="dataSource"
+                               users-by-username-query =
+                                       "select username,password, enabled from users where username=?"
+                               authorities-by-username-query =
+                                       "select username, authority from authorities where username =?  "/>
         </authentication-provider>
     </authentication-manager>
 </b:beans>

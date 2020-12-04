@@ -8,8 +8,13 @@ import com.es.core.order.service.exception.OutOfStockException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface OrderService {
+    Optional<Order> getById(Long id);
+    Optional<Order> getBySecureId(String secureId);
+    List<Order> findAll();
+
     Order createOrder(Cart cart) throws EmptyCartException;
     void completeOrder(Order orderWithCustomerData, Cart cart);
     Map<Long,Long> getAvailableStocksForOutOfStockPhones(Order order);

@@ -1,7 +1,7 @@
 package com.es.phoneshop.web.controller.pages;
 
 import com.es.core.cart.service.exception.PhoneNotFoundException;
-import com.es.core.phone.dao.PhoneDao;
+import com.es.core.phone.service.PhoneService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,13 +14,12 @@ import javax.annotation.Resource;
 @Controller
 @RequestMapping(value = "/productDetails")
 public class ProductDetailsPageController {
-
-    @Resource
-    PhoneDao jdbcPhoneDao;
+    @Resource(name = "defaultPhoneService")
+    private PhoneService phoneService;
 
     @GetMapping("/{id}")
     public String showProductDetails(@PathVariable Long id, Model model) {
-        model.addAttribute("phone", jdbcPhoneDao.get(id).orElseThrow(() -> new PhoneNotFoundException(id)));
+        model.addAttribute("phone", phoneService.get(id).orElseThrow(() -> new PhoneNotFoundException(id)));
         return "productDetails";
     }
 

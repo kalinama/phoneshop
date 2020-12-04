@@ -6,6 +6,8 @@ drop table if exists phones;
 drop table if exists orders;
 drop table if exists order2orderItem;
 drop table if exists orderItems;
+drop table if exists users;
+drop table if exists authorities;
 
 
 create table colors (
@@ -87,4 +89,16 @@ create table order2orderItem (
   orderItemId BIGINT,
   CONSTRAINT FK_order2orderItem_orderId FOREIGN KEY (orderId) REFERENCES orders (id) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT FK_order2orderItem_orderItemId FOREIGN KEY (orderItemId) REFERENCES orderItems (id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+create table users (
+  username VARCHAR_IGNORECASE(50) NOT NULL PRIMARY KEY,
+  password VARCHAR_IGNORECASE(50) NOT NULL,
+  enabled BOOLEAN NOT NULL
+);
+
+create table authorities (
+  username VARCHAR_IGNORECASE(50) NOT NULL,
+  authority VARCHAR_IGNORECASE(50) NOT NULL,
+  CONSTRAINT FK_authorities_users FOREIGN KEY(username) REFERENCES users(username)
 );
