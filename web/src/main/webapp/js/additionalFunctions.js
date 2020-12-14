@@ -16,3 +16,8 @@ function popUpHide() {
 function formSubmit() {
     document.getElementById("logoutForm").submit();
 }
+
+function addContent(id) {
+    var div = document.getElementById(id);
+    div.innerHTML += '<input type="text" name="quantity" />';
+}
