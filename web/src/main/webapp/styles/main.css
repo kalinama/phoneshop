@@ -1,20 +1,85 @@
 td {
-  position: relative;
+    position: relative;
 }
 
 tr.strikeout td:before {
-  content: " ";
-  position: absolute;
-  top: 28%;
-  left: 0;
-  border-bottom: 1px solid #111;
-  width: 100%;
+    content: " ";
+    position: absolute;
+    top: 28%;
+    left: 0;
+    border-bottom: 1px solid #111;
+    width: 100%;
 }
 
 .close {
-  color: red;
-  position: absolute;
-  top: 15%;
-  right: 5%;
-  transform: translate(0%, -50%);
+    color: red;
+    position: absolute;
+    top: 15%;
+    right: 5%;
+    transform: translate(0%, -50%);
 }
+
+.border-container-black {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: bold;
+    background-color: #343a40
+}
+
+.form-container {
+    max-width: 400px;
+    padding: 10px;
+    background-color: white;
+}
+
+.form-container input[type=text], .form-container input[type=password] {
+    width: 100%;
+    padding: 15px;
+    margin: 5px 0 22px 0;
+    border: none;
+    background: #e3e3e3;
+}
+
+.form-container input[type=text]:focus, .form-container input[type=password]:focus {
+    background-color: #ececec;
+    outline: none;
+}
+
+.form-container .btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 16px 20px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+.form-container .btn:hover, .open-button:hover {
+    opacity: 1;
+}
+
+.fullscreen-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(90, 90, 90, 0.5);
+    z-index: 9999;
+}
+
+.login-form {
+    width: 340px;
+    margin: 50px auto;
+}
+
+.login-form form {
+    margin-bottom: 15px;
+    background: #f7f7f7;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    padding: 30px;
+}
+

@@ -18,7 +18,6 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,8 +28,24 @@ public class DefaultOrderService implements OrderService {
 
     @Resource(name = "defaultStockService")
     private StockService stockService;
+
     @Resource
     private OrderDao jdbcOrderDao;
+
+    @Override
+    public Optional<Order> getById(Long id) {
+        return jdbcOrderDao.getById(id);
+    }
+
+    @Override
+    public List<Order> findAll() {
+        return jdbcOrderDao.findAll();
+    }
+
+    @Override
+    public Optional<Order> getBySecureId(String secureId) {
+        return jdbcOrderDao.getBySecureId(secureId);
+    }
 
     @Override
     public Order createOrder(Cart cart) {

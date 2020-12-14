@@ -134,7 +134,7 @@ public class HttpSessionCartServiceTest {
         assertEquals(cartItem2.getQuantity(), quantity2);
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void updateCartPhoneWithThisIdNotExistTest() {
         Map<Long, Long> map = Collections.singletonMap(100L, 5L);
         cartService.update(cart, map);

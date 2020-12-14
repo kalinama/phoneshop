@@ -4,19 +4,19 @@ import javax.annotation.Resource;
 
 import com.es.core.phone.enums.SortOrder;
 import com.es.core.phone.enums.SortParameter;
+import com.es.core.phone.service.PhoneService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.es.core.phone.dao.PhoneDao;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping(value = "/productList")
 public class ProductListPageController {
-    @Resource
-    private PhoneDao jdbcPhoneDao;
+    @Resource(name = "defaultPhoneService")
+    private PhoneService phoneService;
 
     private static final int PHONES_QUANTITY_PER_PAGE = 10;
 
@@ -27,11 +27,11 @@ public class ProductListPageController {
                                   @RequestParam(value = "query", required = false) String query, Model model) {
 
         int offset = (Integer.parseInt(page) - 1) * PHONES_QUANTITY_PER_PAGE;
-        int phonesQuantity = jdbcPhoneDao.getQuantity(query);
+        int phonesQuantity = phoneService.getQuantity(query);
 
         model.addAttribute("maxPageNumber", getMaxPageQuantity(phonesQuantity));
         model.addAttribute("allPhonesQuantity", phonesQuantity);
-        model.addAttribute("phones", jdbcPhoneDao.findAll(offset, PHONES_QUANTITY_PER_PAGE,
+        model.addAttribute("phones", phoneService.findAll(offset, PHONES_QUANTITY_PER_PAGE,
                 query, SortParameter.valueOf(sortParameter), SortOrder.valueOf(sortOrder)));
         return "productList";
     }
