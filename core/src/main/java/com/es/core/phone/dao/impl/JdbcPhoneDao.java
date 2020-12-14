@@ -90,28 +90,20 @@ public class JdbcPhoneDao implements PhoneDao {
 
     @Override
     public Optional<Phone> get(final Long key) {
-        ResultSetExtractor<List<Phone>> resultSetExtractor = JdbcTemplateMapperFactory
-                .newInstance().addKeys("id")
-                .newResultSetExtractor(Phone.class);
-        List<Phone> phones = jdbcTemplate.query(QUERY_FOR_PHONES_SELECT_GET_METHOD,
-                new Object[]{key}, resultSetExtractor);
-
-        if (phones.size() > 1) {
-            throw new PrimaryKeyUniquenessException();
-        }
-        if (phones.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(phones.get(0));
+        return getByQuery(QUERY_FOR_PHONES_SELECT_GET_METHOD, key);
     }
 
     @Override
     public Optional<Phone> getByModel(final String model) {
+        return getByQuery(QUERY_FOR_PHONES_SELECT_GET_METHOD_BY_MODEL, model);
+    }
+
+    private Optional<Phone> getByQuery(String query, Object key) {
         ResultSetExtractor<List<Phone>> resultSetExtractor = JdbcTemplateMapperFactory
                 .newInstance().addKeys("id")
                 .newResultSetExtractor(Phone.class);
-        List<Phone> phones = jdbcTemplate.query(QUERY_FOR_PHONES_SELECT_GET_METHOD_BY_MODEL,
-                new Object[]{model}, resultSetExtractor);
+        List<Phone> phones = jdbcTemplate.query(query,
+                new Object[]{key}, resultSetExtractor);
 
         if (phones.size() > 1) {
             throw new PrimaryKeyUniquenessException();
