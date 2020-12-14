@@ -15,6 +15,7 @@
             </c:if>
         </div>
         <div class="p-2">
+            <button class="btn btn-dark" onclick="redirect('${pageContext.request.contextPath}/quickOrderEntry')">Quick order</button>
             <form>
                 <input class="form-control" name="query" value="${param.query}" type="text" placeholder="Search"/>
             </form>

@@ -10,6 +10,9 @@
     <c:forEach var="messageSuccess" items="${success}">
         <p style="color: #4CAF50">${messageSuccess}</p>
     </c:forEach>
+    <c:if test="${not empty errors}">
+        <p style="color: red">There were errors</p>
+    </c:if>
     <table class="table table-hover" style="table-layout: fixed">
         <thead class="thead-dark">
         <tr>
