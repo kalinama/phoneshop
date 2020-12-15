@@ -22,6 +22,11 @@ public class DefaultPhoneService implements PhoneService {
     }
 
     @Override
+    public Optional<Phone> getByModel(String model) {
+        return jdbcPhoneDao.getByModel(model);
+    }
+
+    @Override
     public List<Phone> findAll(int offset, int limit, String query, SortParameter sortParameter, SortOrder sortOrder) {
         return jdbcPhoneDao.findAll(offset, limit, query, sortParameter, sortOrder);
     }

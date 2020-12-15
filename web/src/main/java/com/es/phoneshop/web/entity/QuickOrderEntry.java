@@ -2,16 +2,9 @@ package com.es.phoneshop.web.entity;
 
 import java.util.Locale;
 
-public class Model2QuantityInputUnit {
+public class QuickOrderEntry {
     private String model;
     private String quantity;
-    private Locale locale;
-
-    public Model2QuantityInputUnit(String model, String quantity, Locale locale) {
-        this.model = model;
-        this.quantity = quantity;
-        this.locale = locale;
-    }
 
     public String getModel() {
         return model;
@@ -27,13 +20,5 @@ public class Model2QuantityInputUnit {
 
     public void setQuantity(String quantity) {
         this.quantity = quantity;
-    }
-
-    public Locale getLocale() {
-        return locale;
-    }
-
-    public void setLocale(Locale locale) {
-        this.locale = locale;
     }
 }

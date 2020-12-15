@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface PhoneService {
     Optional<Phone> get(Long key);
+    Optional<Phone> getByModel(String model);
     List<Phone> findAll(int offset, int limit, String query, SortParameter sortParameter, SortOrder sortOrder);
     int getQuantity(String query);
 }
