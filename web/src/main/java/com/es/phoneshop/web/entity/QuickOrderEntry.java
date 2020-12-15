@@ -1,10 +1,8 @@
 package com.es.phoneshop.web.entity;
 
-import java.util.Locale;
-
 public class QuickOrderEntry {
     private String model;
-    private String quantity;
+    private Long quantity;
 
     public String getModel() {
         return model;
@@ -14,11 +12,11 @@ public class QuickOrderEntry {
         this.model = model;
     }
 
-    public String getQuantity() {
+    public Long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(String quantity) {
+    public void setQuantity(Long quantity) {
         this.quantity = quantity;
     }
 }
