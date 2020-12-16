@@ -7,6 +7,7 @@ import com.es.phoneshop.web.entity.QuickOrderEntriesForm;
 import com.es.phoneshop.web.entity.QuickOrderEntry;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 import javax.annotation.Resource;
@@ -19,6 +20,7 @@ public class QuickOrderEntriesFormValidator implements Validator {
     private PhoneService phoneService;
 
     public static final String NOT_POSITIVE_NUMBER = "quantity.not.positive";
+    public static final String CAN_NOT_BE_EMPTY = "can.not.be.empty";
     public static final String PHONE_MODEL_NOT_FOUND = "model.not.found";
 
     @Override
@@ -44,6 +46,7 @@ public class QuickOrderEntriesFormValidator implements Validator {
 
     private void validateQuantity(Long quantity, int entryIndex, Errors errors) {
         if (quantity == null) {
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "entries[" + entryIndex + "].quantity", CAN_NOT_BE_EMPTY);
             return;
         }
         if (quantity <= 0) {
@@ -53,7 +56,8 @@ public class QuickOrderEntriesFormValidator implements Validator {
 
     private void validateModel(String model, int entryIndex, Errors errors) {
         Optional<Phone> phone = phoneService.getByModel(model);
-        if (!phone.isPresent())
+        if (!phone.isPresent()) {
             errors.rejectValue("entries[" + entryIndex + "].model", PHONE_MODEL_NOT_FOUND);
+        }
     }
 }

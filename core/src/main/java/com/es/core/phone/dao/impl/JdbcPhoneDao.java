@@ -33,13 +33,23 @@ public class JdbcPhoneDao implements PhoneDao {
     @Resource
     private  JdbcHelper defaultJdbcHelper;
 
-    private final static String QUERY_FOR_PHONES_SELECT_GET_METHOD = "SELECT searchedPhone.id AS id, brand, model, price, " +
+    private final static String QUERY_FOR_PHONES_SELECT_GET_BY_ID_METHOD = "SELECT searchedPhone.id AS id, brand, model, price, " +
             "displaySizeInches, weightGr, lengthMm, widthMm, heightMm, announced, deviceType, " +
             "os, displayResolution, pixelDensity, displayTechnology,backCameraMegapixels, " +
             "frontCameraMegapixels, ramGb, internalStorageGb, batteryCapacityMah, " +
             "talkTimeHours, standByTimeHours, bluetooth, positioning, imageUrl, description, " +
             "colors.id AS colors_id, colors.code AS colors_code FROM " +
-            "(SELECT * FROM phones WHERE %s) AS searchedPhone " +
+            "(SELECT * FROM phones WHERE phones.id = ?) AS searchedPhone " +
+            "LEFT JOIN phone2color ON searchedPhone.id = phone2color.phoneId " +
+            "LEFT JOIN colors ON colors.id = phone2color.colorId ";
+
+    private final static String QUERY_FOR_PHONES_SELECT_GET_BY_MODEL_METHOD = "SELECT searchedPhone.id AS id, brand, model, price, " +
+            "displaySizeInches, weightGr, lengthMm, widthMm, heightMm, announced, deviceType, " +
+            "os, displayResolution, pixelDensity, displayTechnology,backCameraMegapixels, " +
+            "frontCameraMegapixels, ramGb, internalStorageGb, batteryCapacityMah, " +
+            "talkTimeHours, standByTimeHours, bluetooth, positioning, imageUrl, description, " +
+            "colors.id AS colors_id, colors.code AS colors_code FROM " +
+            "(SELECT * FROM phones WHERE phones.model = ?) AS searchedPhone " +
             "LEFT JOIN phone2color ON searchedPhone.id = phone2color.phoneId " +
             "LEFT JOIN colors ON colors.id = phone2color.colorId ";
 
@@ -78,20 +88,14 @@ public class JdbcPhoneDao implements PhoneDao {
     private final static String QUERY_FOR_PHONES_QUANTITY = "SELECT count(*) FROM phones " +
             "WHERE phones.id NOT IN (" + SUBQUERY_FOR_PHONES_NOT_DISPLAYED + ")";
 
-    private final static String PARAM_FOR_SEARCH_ID = "phones.id = ?";
-    private final static String PARAM_FOR_SEARCH_MODEL = "phones.model = ?";
-
-
     @Override
     public Optional<Phone> get(final Long key) {
-        String query = String.format(QUERY_FOR_PHONES_SELECT_GET_METHOD, PARAM_FOR_SEARCH_ID);
-        return getByQuery(query, key);
+        return getByQuery(QUERY_FOR_PHONES_SELECT_GET_BY_ID_METHOD, key);
     }
 
     @Override
     public Optional<Phone> getByModel(final String model) {
-        String query = String.format(QUERY_FOR_PHONES_SELECT_GET_METHOD, PARAM_FOR_SEARCH_MODEL);
-        return getByQuery(query, model);
+        return getByQuery(QUERY_FOR_PHONES_SELECT_GET_BY_MODEL_METHOD, model);
     }
 
     private Optional<Phone> getByQuery(String query, Object key) {
